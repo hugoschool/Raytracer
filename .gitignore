@@ -1,0 +1,10 @@
+# Binaries
+raytracer
+*.a
+*.o
+*.so
+
+# Cache
+.cache
+compile_commands.json
+.vscode
