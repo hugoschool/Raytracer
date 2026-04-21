@@ -14,9 +14,9 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     try {
         const libconfig::Setting &camera = root["camera"];
 
-        unsigned int x = 0;
-        unsigned int y = 0;
-        unsigned int z = 0;
+        int x = 0;
+        int y = 0;
+        int z = 0;
 
         if (!(
             camera["position"].lookupValue("x", x) &&
@@ -47,7 +47,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
             long long x = 0;
             long long y = 0;
             long long z = 0;
-            double r = 0;
+            long long r = 0;
 
             if (!(
                 sphere.lookupValue("x", x) &&
@@ -58,7 +58,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 throw std::exception();
             }
 
-            _primitives.push_back({Math::Point3D(x, y, z), r});
+            _primitives.push_back({Math::Point3D(x, y, z), static_cast<double>(r)});
         }
     } catch (const std::exception &e) {
         std::cerr << "Wrong primitives configuration" << std::endl;
