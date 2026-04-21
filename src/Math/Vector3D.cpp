@@ -1,6 +1,6 @@
 #include "Math/Vector3D.hpp"
 #include <cmath>
-
+#include <iostream>
 Raytracer::Math::Vector3D::Vector3D(double x, double y, double z) : x(x), y(y), z(z)
 {
 }
@@ -33,6 +33,47 @@ Raytracer::Math::Vector3D Raytracer::Math::Vector3D::operator*(const Raytracer::
 Raytracer::Math::Vector3D Raytracer::Math::Vector3D::operator*(const double nb) const
 {
     return Raytracer::Math::Vector3D(x * nb, y * nb, z * nb);
+}
+
+Raytracer::Math::Vector3D Raytracer::Math::Vector3D::operator/(const Raytracer::Math::Vector3D &vector) const
+{
+    if (vector.x == 0 || vector.y == 0 || vector.z == 0) {
+        std::cerr << "Floating point exception" << std::endl;
+        return Raytracer::Math::Vector3D(*this);
+    }
+    return Raytracer::Math::Vector3D(x / vector.x, y / vector.y, z / vector.z);
+}
+
+void Raytracer::Math::Vector3D::operator+=(const Vector3D &vector)
+{
+    this->x += vector.x;
+    this->y += vector.y;
+    this->z += vector.z;
+}
+
+void Raytracer::Math::Vector3D::operator-=(const Vector3D &vector)
+{
+    this->x -= vector.x;
+    this->y -= vector.y;
+    this->z -= vector.z;
+}
+
+void Raytracer::Math::Vector3D::operator*=(const Vector3D &vector)
+{
+    this->x *= vector.x;
+    this->y *= vector.y;
+    this->z *= vector.z;
+}
+
+void Raytracer::Math::Vector3D::operator/=(const Vector3D &vector)
+{
+    if (vector.x == 0 || vector.y == 0 || vector.z == 0) {
+        std::cerr << "Floating point exception" << std::endl;
+        return;
+    }
+    this->x /= vector.x;
+    this->y /= vector.y;
+    this->z /= vector.z;
 }
 
 // https://math.libretexts.org/Bookshelves/Applied_Mathematics/Mathematics_for_Game_Developers_(Burzynski)/04%3A_Matrices/4.06%3A_Rotation_Matrices_in_3-Dimensions

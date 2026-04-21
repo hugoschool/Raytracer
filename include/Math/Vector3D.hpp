@@ -18,12 +18,18 @@ namespace Raytracer {
                 Vector3D operator+(const Vector3D &vector) const;
                 Vector3D operator-(const Vector3D &vector) const;
                 Vector3D operator*(const Vector3D &vector) const;
+                Vector3D operator/(const Vector3D &vector) const;
 
                 Vector3D operator*(const double nb) const;
 
                 Vector3D rotateX(double degree) const;
                 Vector3D rotateY(double degree) const;
                 Vector3D rotateZ(double degree) const;
+
+                void operator+=(const Vector3D &vector);
+                void operator-=(const Vector3D &vector);
+                void operator*=(const Vector3D &vector);
+                void operator/=(const Vector3D &vector);
 
                 // TODO: +=, -=, *=, / and /=
         };
