@@ -1,6 +1,7 @@
 CXX	:=	clang++
 CXXFLAGS	:=	-std=c++20 -Wall -Wextra
 CPPFLAGS	:=	-I ./include/
+LDLIBS	:=	-lconfig++
 
 ifeq ($(ENV), dev)
 	CXXFLAGS	+=	-fsanitize=address

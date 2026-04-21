@@ -1,5 +1,6 @@
 #pragma once
 
+#include <libconfig.h++>
 #include <string>
 
 namespace Raytracer {
@@ -10,7 +11,9 @@ namespace Raytracer {
             ~Raytracer() = default;
 
             void exportPPM();
+
         private:
             const std::string _sceneFile;
+            libconfig::Config _config;
     };
 }
