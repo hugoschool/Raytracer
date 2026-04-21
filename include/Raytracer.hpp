@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Camera.hpp"
+#include "primitives/Sphere.hpp"
 #include <libconfig.h++>
 #include <string>
+#include <vector>
 
 namespace Raytracer {
     class Raytracer {
@@ -18,5 +20,10 @@ namespace Raytracer {
             libconfig::Config _config;
 
             Camera _camera;
+            unsigned int _width;
+            unsigned int _height;
+
+            // TODO: important, replace with the interface
+            std::vector<Sphere> _primitives;
     };
 }

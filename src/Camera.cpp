@@ -7,6 +7,12 @@ Raytracer::Camera::Camera() : origin(0, 0, 0), screen()
 {
 }
 
+Raytracer::Camera::Camera(const Math::Point3D origin, const Math::Rectangle3D screen) :
+    origin(origin), screen(screen)
+{
+}
+
+
 Raytracer::Ray Raytracer::Camera::ray(double u, double v)
 {
     Math::Point3D point = screen.pointAt(u, v);

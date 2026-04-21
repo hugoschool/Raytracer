@@ -6,6 +6,12 @@ Raytracer::Math::Rectangle3D::Rectangle3D() : origin(-200, -200, -10), leftSide(
 {
 }
 
+Raytracer::Math::Rectangle3D::Rectangle3D(const std::size_t width, const std::size_t height, const double fov) :
+    origin(-(static_cast<double>(width) / 2), -(static_cast<double>(height) / 2), -10), // TODO: change Z for FOV
+    leftSide(0, height, 0), bottomSide(width, 0, 0)
+{
+}
+
 Raytracer::Math::Point3D Raytracer::Math::Rectangle3D::pointAt(double u, double v)
 {
     Vector3D leftVector = leftSide * u;

@@ -8,10 +8,11 @@ namespace Raytracer {
     class Camera {
         public:
             Camera();
+            Camera(const Math::Point3D origin, const Math::Rectangle3D screen);
             ~Camera() = default;
 
             Math::Point3D origin;
-            Raytracer::Math::Rectangle3D screen;
+            Math::Rectangle3D screen;
 
             Raytracer::Ray ray(double u, double v);
     };
