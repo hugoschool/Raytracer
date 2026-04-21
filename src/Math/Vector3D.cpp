@@ -72,6 +72,14 @@ void Raytracer::Math::Vector3D::operator*=(const Vector3D &vector)
     this->z *= vector.z;
 }
 
+void Raytracer::Math::Vector3D::operator*=(const double nb)
+{
+    this->x *= nb;
+    this->y *= nb;
+    this->z *= nb;
+}
+
+
 void Raytracer::Math::Vector3D::operator/=(const Vector3D &vector)
 {
     if (vector.x == 0 || vector.y == 0 || vector.z == 0) {
@@ -95,7 +103,6 @@ Raytracer::Math::Vector3D Raytracer::Math::Vector3D::operator=(const Matrix3x1 &
 
 // https://math.libretexts.org/Bookshelves/Applied_Mathematics/Mathematics_for_Game_Developers_(Burzynski)/04%3A_Matrices/4.06%3A_Rotation_Matrices_in_3-Dimensions
 // https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
-// TODO: could be improved with a matrix class perhaps?
 Raytracer::Math::Vector3D Raytracer::Math::Vector3D::rotateX(double degree) const
 {
     Math::Matrix3x1 vectorMatrix(this->x, this->y, this->z);

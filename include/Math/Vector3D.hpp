@@ -19,23 +19,26 @@ namespace Raytracer {
                 double length();
                 double dot(Vector3D &vector);
 
+
+
+                Vector3D rotateX(double degree) const;
+                Vector3D rotateY(double degree) const;
+                Vector3D rotateZ(double degree) const;
+
+
                 Vector3D operator+(const Vector3D &vector) const;
                 Vector3D operator-(const Vector3D &vector) const;
                 Vector3D operator*(const Vector3D &vector) const;
                 Vector3D operator/(const Vector3D &vector) const;
 
                 Vector3D operator*(const double nb) const;
-
-                Vector3D rotateX(double degree) const;
-                Vector3D rotateY(double degree) const;
-                Vector3D rotateZ(double degree) const;
+                void operator*=(const double nb);
 
                 void operator+=(const Vector3D &vector);
                 void operator-=(const Vector3D &vector);
                 void operator*=(const Vector3D &vector);
                 void operator/=(const Vector3D &vector);
                 Raytracer::Math::Vector3D operator=(const Raytracer::Math::Matrix3x1 &matrix);
-                // TODO: +=, -=, *=, / and /=
         };
     }
 }
