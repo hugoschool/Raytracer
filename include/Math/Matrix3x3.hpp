@@ -2,12 +2,14 @@
 ** EPITECH PROJECT, 2026
 ** raytracer
 ** File description:
-** Matrix.hpp
+** Matrix3x3.hpp
 */
 
 #pragma once
+#include "Math/Matrix3x1.hpp"
 #include "Vector3D.hpp"
 #include <array>
+#include <cstddef>
 
 namespace Raytracer {
     namespace Math {
@@ -16,13 +18,10 @@ namespace Raytracer {
                 Matrix3x3();
                 Matrix3x3(double, double, double, double, double, double, double, double, double);
                 Matrix3x3(std::array<std::array<double, 3>, 3> &);
+                Raytracer::Math::Matrix3x1 operator*(Matrix3x1 &other);
 
-                Matrix3x3(Vector3D &);
                 ~Matrix3x3() = default;
-                Matrix3x3 rotateX(double angle);
-                Matrix3x3 rotateY(double angle);
-                Matrix3x3 rotateZ(double angle);
-                Matrix3x3 operator*(Matrix3x3 &);
+                double get(size_t, size_t);
             private:
                 std::array<std::array<double, 3>, 3> _matrix;
         };

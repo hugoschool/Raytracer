@@ -14,7 +14,10 @@ endif
 
 MATH_SRC	:=	src/Math/Point3D.cpp \
 				src/Math/Rectangle3D.cpp \
-				src/Math/Vector3D.cpp
+				src/Math/Vector3D.cpp \
+				src/Math/Matrix3x3.cpp \
+				src/Math/Matrix3x1.cpp
+
 
 PRIMITIVES_SRC	:=	src/primitives/Sphere.cpp
 
