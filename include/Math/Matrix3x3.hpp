@@ -21,7 +21,7 @@ namespace Raytracer {
                 Raytracer::Math::Matrix3x1 operator*(Matrix3x1 &other);
 
                 ~Matrix3x3() = default;
-                double get(size_t, size_t);
+                double get(size_t, size_t) const;
             private:
                 std::array<std::array<double, 3>, 3> _matrix;
         };

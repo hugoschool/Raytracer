@@ -35,7 +35,7 @@ Raytracer::Math::Matrix3x1 Raytracer::Math::Matrix3x3::operator*(Matrix3x1 &othe
     return Matrix3x1(result);
 }
 
-double Raytracer::Math::Matrix3x3::get(size_t y, size_t x)
+double Raytracer::Math::Matrix3x3::get(size_t y, size_t x) const
 {
     if (y >= this->_matrix.size() || x >= this->_matrix[y].size()) {
         std::cerr << "Out of bound reach on matrix" << std::endl;

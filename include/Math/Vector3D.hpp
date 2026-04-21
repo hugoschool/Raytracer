@@ -1,11 +1,15 @@
 #pragma once
 
+#include "Matrix3x1.hpp"
 namespace Raytracer {
     namespace Math {
+        class Matrix3x1;
         class Vector3D {
             public:
                 Vector3D() = default;
                 Vector3D(double x, double y, double z);
+                Vector3D(const Matrix3x1 &matrix);
+
                 ~Vector3D() = default;
 
                 double x;
@@ -30,7 +34,7 @@ namespace Raytracer {
                 void operator-=(const Vector3D &vector);
                 void operator*=(const Vector3D &vector);
                 void operator/=(const Vector3D &vector);
-
+                Raytracer::Math::Vector3D operator=(const Raytracer::Math::Matrix3x1 &matrix);
                 // TODO: +=, -=, *=, / and /=
         };
     }

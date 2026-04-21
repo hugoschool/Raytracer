@@ -56,7 +56,7 @@ Raytracer::Math::Matrix3x1 Raytracer::Math::Matrix3x1::rotateZ(double angle)
     return Rotation_matrix * *this;
 }
 
-double Raytracer::Math::Matrix3x1::get(size_t y)
+double Raytracer::Math::Matrix3x1::get(size_t y) const
 {
     if (y >= this->_matrix.size()) {
         std::cerr << "Out of bound reach on matrix" << std::endl;

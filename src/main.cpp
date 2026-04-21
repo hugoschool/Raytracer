@@ -1,3 +1,5 @@
+#include "Math/Matrix3x1.hpp"
+#include "Math/Vector3D.hpp"
 #include "Raytracer.hpp"
 #include <exception>
 #include <iostream>
@@ -14,7 +16,6 @@ int main(int argc, char **argv)
         std::cout << "    SCENE_FILE: scene configuration" << std::endl;
         return 0;
     }
-
     try {
         Raytracer::Raytracer raytracer(argv[1]);
 
