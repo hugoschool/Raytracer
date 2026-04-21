@@ -4,6 +4,9 @@ raytracer
 *.o
 *.so
 *.ppm
+screenshots/
+*.cfg
+!scenes/*.cfg
 
 # Cache
 .cache

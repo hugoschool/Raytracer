@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Camera.hpp"
 #include <libconfig.h++>
 #include <string>
 
@@ -15,5 +16,7 @@ namespace Raytracer {
         private:
             const std::string _sceneFile;
             libconfig::Config _config;
+
+            Camera _camera;
     };
 }

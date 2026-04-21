@@ -12,8 +12,18 @@ ifeq ($(ENV), dev-g3)
 	CXXFLAGS	+=	-g3
 endif
 
-SRC	:=	src/main.cpp \
-		src/Raytracer.cpp
+MATH_SRC	:=	src/Math/Point3D.cpp \
+				src/Math/Rectangle3D.cpp \
+				src/Math/Vector3D.cpp
+
+PRIMITIVES_SRC	:=	src/primitives/Sphere.cpp
+
+SRC	:=	$(MATH_SRC) \
+		$(PRIMITIVES_SRC) \
+		src/main.cpp \
+		src/Raytracer.cpp \
+		src/Camera.cpp \
+		src/Ray.cpp
 
 OBJ	:=	$(SRC:.cpp=.o)
 
