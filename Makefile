@@ -11,7 +11,8 @@ ifeq ($(ENV), dev-g3)
 	CXXFLAGS	+=	-g3
 endif
 
-SRC	:=	src/main.cpp
+SRC	:=	src/main.cpp \
+		src/Raytracer.cpp
 
 OBJ	:=	$(SRC:.cpp=.o)
 

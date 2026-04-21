@@ -3,6 +3,7 @@ raytracer
 *.a
 *.o
 *.so
+*.ppm
 
 # Cache
 .cache
