@@ -1,5 +1,5 @@
 CXX	:=	clang++
-CXXFLAGS	:=	-std=c++20 -Wall -Wextra
+CXXFLAGS	:=	-std=c++20 -Wall -Wextra -O3
 CPPFLAGS	:=	-I ./include/
 LDLIBS	:=	-lconfig++
 
