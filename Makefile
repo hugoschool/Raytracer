@@ -15,6 +15,12 @@ ifeq ($(ENV), dev-g3)
 	CXXFLAGS	+=	-g3
 endif
 
+MATH_SRC	:=	$(BASE_DIR)/src/Math/Point3D.cpp \
+				$(BASE_DIR)/src/Math/Rectangle3D.cpp \
+				$(BASE_DIR)/src/Math/Vector3D.cpp \
+				$(BASE_DIR)/src/Math/Matrix3x3.cpp \
+				$(BASE_DIR)/src/Math/Matrix3x1.cpp
+
 # Make all calls to other makefiles inherit those variables
 export BASE_DIR
 export PLUGINS_DIR
@@ -23,15 +29,10 @@ export CXXFLAGS
 export CPPFLAGS
 export LDFLAGS
 export LDLIBS
+export MATH_SRC
 
 # Disable "Entering directory" for every -C option
 MAKEFLAGS += --no-print-directory
-
-MATH_SRC	:=	src/Math/Point3D.cpp \
-				src/Math/Rectangle3D.cpp \
-				src/Math/Vector3D.cpp \
-				src/Math/Matrix3x3.cpp \
-				src/Math/Matrix3x1.cpp
 
 LIGHT_SRC := src/lights/Light.cpp
 
@@ -47,7 +48,7 @@ OBJ	:=	$(SRC:.cpp=.o)
 
 BINARY	:=	raytracer
 
-all:	plugins $(BINARY)
+all:	plugins .WAIT $(BINARY)
 
 plugins: primitives
 

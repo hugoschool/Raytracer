@@ -1,4 +1,8 @@
-SPHERE_SRC	:=	Sphere.cpp
+COMMON_SRC	:=	$(MATH_SRC) \
+				APrimitive.cpp
+
+SPHERE_SRC	:=	$(COMMON_SRC) \
+				Sphere.cpp
 SPHERE_OBJ	:=	$(SPHERE_SRC:.cpp=.o)
 SPHERE_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_sphere.so
 
