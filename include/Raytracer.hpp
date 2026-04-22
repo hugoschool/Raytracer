@@ -4,7 +4,9 @@
 #include "Math/Vector3D.hpp"
 #include "lights/Light.hpp"
 #include "primitives/Sphere.hpp"
+#include "primitives/IPrimitive.hpp"
 #include <libconfig.h++>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -23,10 +25,9 @@ namespace Raytracer {
             Camera _camera;
             unsigned int _width;
             unsigned int _height;
-            void handleHit(Sphere &s, HitInfo &hit, Color &color, bool &hasHit);
+            void handleHit(std::unique_ptr<IPrimitive> &s, HitInfo &hit, Color &color);
 
-            // TODO: important, replace with the interface
-            std::vector<Sphere> _primitives;
+            std::vector<std::unique_ptr<IPrimitive>> _primitives;
             std::vector<Light> _lights;
     };
 }
