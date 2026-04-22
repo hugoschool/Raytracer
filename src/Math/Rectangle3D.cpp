@@ -25,7 +25,7 @@ Raytracer::Math::Rectangle3D::Rectangle3D(const std::size_t width, const std::si
 Raytracer::Math::Point3D Raytracer::Math::Rectangle3D::pointAt(double u, double v)
 {
     Vector3D bottomVector = bottomSide * u;
-    Vector3D leftVector = leftSide * v;
+    Vector3D leftVector = leftSide - leftSide * v;
 
     return origin + leftVector + bottomVector;
 }
