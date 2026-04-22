@@ -1,5 +1,3 @@
-#include "Math/Matrix3x1.hpp"
-#include "Math/Vector3D.hpp"
 #include "Raytracer.hpp"
 #include <exception>
 #include <iostream>

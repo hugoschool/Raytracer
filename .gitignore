@@ -4,6 +4,7 @@ raytracer
 *.o
 *.so
 *.ppm
+*.png
 screenshots/
 *.cfg
 !scenes/*.cfg

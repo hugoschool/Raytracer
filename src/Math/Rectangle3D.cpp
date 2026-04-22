@@ -8,18 +8,18 @@ Raytracer::Math::Rectangle3D::Rectangle3D() : origin(-200, -200, -10), leftSide(
 {
 }
 
-Raytracer::Math::Rectangle3D::Rectangle3D(const std::size_t width, const std::size_t height, const double fov) :
-    origin(-(static_cast<double>(width) / 2), -(static_cast<double>(height) / 2), -10), // TODO: change Z for FOV
-    leftSide(0, height, 0), bottomSide(width, 0, 0)
+Raytracer::Math::Rectangle3D::Rectangle3D(const std::size_t width, const std::size_t height, const double fov)
 {
-    // d = 200/tan(fov/2), avec d la distance entre la caméra et le plan
+    const double aspectRatio = static_cast<double>(width) / height;
 
-    double d = width/(std::tan(fov) * 2);
-    d = pow(d, 2);
-    d = d/2;
-    d = std::sqrt(d);
-    origin = Point3D(-d, -d, -d);
-    // std::cerr << "d: " << d << "   tan(fov): " << std::tan(fov) << std::endl;;
+    const double distanceScreen = 15.0; // also known as focal distance
+    const double theta = fov * M_PI / 180.0;
+    const double h = 2 * distanceScreen * std::tan(theta / 2);
+    const double w = h / aspectRatio;
+
+    origin = Math::Point3D(-(w / 2), -(h / 2), -distanceScreen);
+    leftSide = Math::Vector3D(0, h, 0);
+    bottomSide = Math::Vector3D(w, 0, 0);
 }
 
 Raytracer::Math::Point3D Raytracer::Math::Rectangle3D::pointAt(double u, double v)

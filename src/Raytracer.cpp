@@ -17,20 +17,22 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
         int x = 0;
         int y = 0;
         int z = 0;
+        double fov = 0.0;
 
         if (!(
             camera["position"].lookupValue("x", x) &&
             camera["position"].lookupValue("y", y) &&
             camera["position"].lookupValue("z", z) &&
             camera["resolution"].lookupValue("width", _width) &&
-            camera["resolution"].lookupValue("height", _height)
+            camera["resolution"].lookupValue("height", _height) &&
+            camera.lookupValue("fieldOfView", fov)
         )) {
             throw std::exception();
         }
 
         _camera = Camera(
             Math::Point3D(x, y, z),
-            Math::Rectangle3D(_width, _height, 100)
+            Math::Rectangle3D(_width, _height, fov)
         );
     } catch (const std::exception &e) {
         std::cerr << "Wrong or missing camera parameter" << std::endl;
