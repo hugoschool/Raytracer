@@ -106,7 +106,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     }
     _lights.push_back(Light{Math::Point3D(0, 200, -200)});
     // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
-    std::sort(_primitives.begin(), _primitives.end(), [](std::unique_ptr<IPrimitive> &a, std::unique_ptr<IPrimitive> &b)
+    std::sort(_primitives.begin(), _primitives.end(), [](std::shared_ptr<IPrimitive> &a, std::shared_ptr<IPrimitive> &b)
     {
         return a->getOptions().center.z > b->getOptions().center.z;
     });
@@ -139,7 +139,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
 }
 
 
-void Raytracer::Raytracer::handleHit(std::unique_ptr<IPrimitive> &s, HitInfo &hit, Color &color)
+void Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color)
 {
     color = hit.getColor();
     double multiplier = 0.0;
@@ -150,7 +150,7 @@ void Raytracer::Raytracer::handleHit(std::unique_ptr<IPrimitive> &s, HitInfo &hi
         if (tmpMultiplier <= 0)
             continue;
         Ray lightToHit(light.getPos(), light_Vector);
-        for (std::unique_ptr<IPrimitive> &tmpSphere: _primitives) {
+        for (std::shared_ptr<IPrimitive> &tmpSphere: _primitives) {
             if (tmpSphere.get() == s.get())
                 continue;
             HitInfo tmpHitInfo = tmpSphere->hits(lightToHit);
@@ -186,10 +186,9 @@ void Raytracer::Raytracer::exportPPM()
 
             bool hasHit = false;
             Color color;
-            for (std::unique_ptr<IPrimitive> &ptr : _primitives) {
+            for (std::shared_ptr<IPrimitive> &ptr : _primitives) {
                 HitInfo hit = ptr->hits(r);
                 if (hit.hasHit()) {
-                    // TODO: obvious garbage cast for now
                     this->handleHit(ptr, hit, color);
                     hasHit = true;
                     break;

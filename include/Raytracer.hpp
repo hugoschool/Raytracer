@@ -25,9 +25,9 @@ namespace Raytracer {
             Camera _camera;
             unsigned int _width;
             unsigned int _height;
-            void handleHit(std::unique_ptr<IPrimitive> &s, HitInfo &hit, Color &color);
+            void handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color);
 
-            std::vector<std::unique_ptr<IPrimitive>> _primitives;
+            std::vector<std::shared_ptr<IPrimitive>> _primitives;
             std::vector<Light> _lights;
     };
 }
