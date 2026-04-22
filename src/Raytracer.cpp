@@ -1,3 +1,4 @@
+#include "Color.hpp"
 #include "Raytracer.hpp"
 #include <algorithm>
 #include <iostream>
@@ -9,6 +10,7 @@
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _sceneFile(sceneFile), _config(), _width(), _height()
 {
+    // TODO: all of this should probably be moved to its own class
     _config.readFile(_sceneFile);
     const libconfig::Setting &root = _config.getRoot();
 
@@ -63,7 +65,27 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 throw std::exception();
             }
 
-            _primitives.push_back({Math::Point3D(x, y, z), static_cast<double>(r)});
+            unsigned int colorR;
+            unsigned int colorG;
+            unsigned int colorB;
+            Color color;
+
+            if (!(
+                sphere["color"].lookupValue("r", colorR) &&
+                sphere["color"].lookupValue("g", colorG) &&
+                sphere["color"].lookupValue("b", colorB)
+            )) {
+                throw std::exception();
+            }
+
+            // TODO: verify that color is < 255
+            color = {
+                .r = static_cast<unsigned char>(colorR),
+                .g = static_cast<unsigned char>(colorG),
+                .b = static_cast<unsigned char>(colorB),
+            };
+
+            _primitives.push_back({Math::Point3D(x, y, z), static_cast<double>(r), color});
         }
     } catch (const std::exception &e) {
         std::cerr << "Wrong primitives configuration" << std::endl;
@@ -90,16 +112,20 @@ void Raytracer::Raytracer::exportPPM()
             Ray r = _camera.ray(u, v);
 
             bool hasHit = false;
+            Color color;
             for (Sphere &s : _primitives) {
                 if (s.hits(r)) {
                     hasHit = true;
-                    continue;
+                    color = s.getColor(r);
+                    break;
                 }
             }
-            if (hasHit)
-                std::cout << "255 0 0" << std::endl;
-            else
-                std::cout << "0 0 255" << std::endl;
+            if (hasHit) {
+                std::cout   << static_cast<unsigned int>(color.r) << " "
+                            << static_cast<unsigned int>(color.g) << " "
+                            << static_cast<unsigned int>(color.b) << std::endl;
+            } else
+                std::cout << "0 0 0" << std::endl;
         }
     }
 }

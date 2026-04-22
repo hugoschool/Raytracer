@@ -1,10 +1,11 @@
+#include "Color.hpp"
 #include "Math/Vector3D.hpp"
 #include "primitives/Sphere.hpp"
 #include "Ray.hpp"
 #include <cmath>
 
-Raytracer::Sphere::Sphere(const Math::Point3D &center, double radius) :
-    center(center.x, center.y, center.z), radius(radius)
+Raytracer::Sphere::Sphere(const Math::Point3D &center, double radius, Color color) :
+    center(center.x, center.y, center.z), radius(radius), color(color)
 {
 }
 
@@ -35,4 +36,11 @@ bool Raytracer::Sphere::hits(Raytracer::Ray &ray)
     double d = std::pow(b, 2) - 4 * a * c;
 
     return d >= 0;
+}
+
+Raytracer::Color Raytracer::Sphere::getColor(Raytracer::Ray &ray) const
+{
+    // TODO: change for light probably
+    static_cast<void>(ray);
+    return color;
 }
