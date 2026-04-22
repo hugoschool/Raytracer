@@ -21,6 +21,9 @@ MATH_SRC	:=	$(BASE_DIR)/src/Math/Point3D.cpp \
 				$(BASE_DIR)/src/Math/Matrix3x3.cpp \
 				$(BASE_DIR)/src/Math/Matrix3x1.cpp
 
+# Shared between the main core and the plugins
+COMMON_SRC	:=	$(BASE_DIR)/src/HitInfo.cpp
+
 # Make all calls to other makefiles inherit those variables
 export BASE_DIR
 export PLUGINS_DIR
@@ -30,19 +33,20 @@ export CPPFLAGS
 export LDFLAGS
 export LDLIBS
 export MATH_SRC
+export COMMON_SRC
 
 # Disable "Entering directory" for every -C option
 MAKEFLAGS += --no-print-directory
 
 LIGHT_SRC := src/lights/Light.cpp
 
-SRC	:=	$(MATH_SRC) \
+SRC	:=	$(COMMON_SRC) \
+		$(MATH_SRC) \
 		$(LIGHT_SRC) \
 		src/main.cpp \
 		src/Raytracer.cpp \
 		src/Camera.cpp \
-		src/Ray.cpp \
-		src/HitInfo.cpp
+		src/Ray.cpp
 
 OBJ	:=	$(SRC:.cpp=.o)
 

@@ -57,3 +57,8 @@ Raytracer::Math::Vector3D Raytracer::Sphere::getNormal(const Math::Point3D point
 {
     return point - _options.center;
 }
+
+extern "C" Raytracer::IPrimitive *primitiveEntrypoint(Raytracer::PrimitiveOptions options)
+{
+    return new Raytracer::Sphere(options);
+}

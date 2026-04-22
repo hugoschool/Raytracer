@@ -1,4 +1,5 @@
-COMMON_SRC	:=	$(MATH_SRC) \
+COMMON_SRC	:=	$(COMMON_SRC) \
+				$(MATH_SRC) \
 				APrimitive.cpp
 
 SPHERE_SRC	:=	$(COMMON_SRC) \

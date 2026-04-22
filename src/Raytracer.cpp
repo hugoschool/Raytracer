@@ -1,19 +1,16 @@
 #include "Color.hpp"
+#include "DLLoader.hpp"
 #include "Raytracer.hpp"
-#include <algorithm>
-#include <cstdlib>
-#include <iostream>
-#include <libconfig.h++>
-
-// To be removed:
-#include "HitInfo.hpp"
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "Ray.hpp"
 #include "lights/Light.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
-#include "primitives/Sphere.hpp"
+#include "Utils.hpp"
+#include <algorithm>
+#include <iostream>
+#include <memory>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _sceneFile(sceneFile), _config(), _width(), _height(), _primitives(), _lights()
@@ -93,12 +90,16 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 .b = static_cast<unsigned char>(colorB),
             };
 
-            // TODO: Temporarily commented out for compilation.
-            // _primitives.push_back(
-            //     std::make_unique<Sphere>(
-            //         PrimitiveOptions{Math::Point3D(x, y, z), color, static_cast<double>(r)}
-            //     )
-            // );
+            PrimitiveOptions options = {
+                Math::Point3D(x, y, z),
+                color,
+                static_cast<double>(r)
+            };
+
+            DLLoader<IPrimitive> loader("./plugins/raytracer_primitive_sphere.so");
+            _primitives.push_back(
+                loader.getInstance(std::string(Utils::primitiveEntrypoint), options)
+            );
         }
     } catch (const std::exception &e) {
         std::cerr << "Wrong primitives configuration" << std::endl;

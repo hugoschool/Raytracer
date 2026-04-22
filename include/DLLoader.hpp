@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Exception.hpp"
+#include "primitives/PrimitiveOptions.hpp"
 #include <dlfcn.h>
 #include <memory>
 #include <string>
@@ -23,7 +24,7 @@ namespace Raytracer {
 
             void *openHandle()
             {
-                _handle = dlopen(_libraryName.c_str(), RTLD_NOW);
+                _handle = dlopen(_libraryName.c_str(), RTLD_NOW | RTLD_GLOBAL | RTLD_NODELETE);
                 if (_handle == nullptr)
                     throw Raytracer::Exception(dlerror());
                 return _handle;
@@ -37,16 +38,16 @@ namespace Raytracer {
                 return dlsym(_handle, symbol.c_str()) != nullptr;
             }
 
-            std::shared_ptr<T> getInstance(const std::string functionName) const
+            std::shared_ptr<T> getInstance(const std::string functionName, Raytracer::PrimitiveOptions options) const
             {
                 if (_handle == nullptr)
                     throw Raytracer::Exception("Impossible to find handle");
 
-                T *(*function)() = reinterpret_cast<T *(*)()>(dlsym(_handle, functionName.c_str()));
+                T *(*function)(PrimitiveOptions) = reinterpret_cast<T *(*)(PrimitiveOptions)>(dlsym(_handle, functionName.c_str()));
                 if (function == nullptr)
                     throw Raytracer::Exception(dlerror());
 
-                T *instance = (*function)();
+                T *instance = (*function)(options);
                 if (instance == nullptr)
                     throw Raytracer::Exception("Impossible to find instance");
 
