@@ -1,6 +1,9 @@
+BASE_DIR	:=	$(realpath .)
+PLUGINS_DIR	:=	$(BASE_DIR)/plugins
+
 CXX	:=	clang++
 CXXFLAGS	:=	-std=c++20 -Wall -Wextra -O3
-CPPFLAGS	:=	-I ./include/
+CPPFLAGS	:=	-I $(BASE_DIR)/include/
 LDLIBS	:=	-lconfig++
 
 ifeq ($(ENV), dev)
@@ -12,6 +15,18 @@ ifeq ($(ENV), dev-g3)
 	CXXFLAGS	+=	-g3
 endif
 
+# Make all calls to other makefiles inherit those variables
+export BASE_DIR
+export PLUGINS_DIR
+export CXX
+export CXXFLAGS
+export CPPFLAGS
+export LDFLAGS
+export LDLIBS
+
+# Disable "Entering directory" for every -C option
+MAKEFLAGS += --no-print-directory
+
 MATH_SRC	:=	src/Math/Point3D.cpp \
 				src/Math/Rectangle3D.cpp \
 				src/Math/Vector3D.cpp \
@@ -20,11 +35,7 @@ MATH_SRC	:=	src/Math/Point3D.cpp \
 
 LIGHT_SRC := src/lights/Light.cpp
 
-PRIMITIVES_SRC	:=	src/primitives/Sphere.cpp
-				
-
 SRC	:=	$(MATH_SRC) \
-		$(PRIMITIVES_SRC) \
 		$(LIGHT_SRC) \
 		src/main.cpp \
 		src/Raytracer.cpp \
@@ -36,15 +47,22 @@ OBJ	:=	$(SRC:.cpp=.o)
 
 BINARY	:=	raytracer
 
-all:	$(BINARY)
+all:	plugins $(BINARY)
+
+plugins: primitives
+
+primitives:
+	$(MAKE) -C src/primitives
 
 $(BINARY):	$(OBJ)
 	$(CXX) -o $(BINARY) $(OBJ) $(LDFLAGS) $(LDLIBS)
 
 clean:
+	$(MAKE) -C src/primitives clean
 	$(RM) $(OBJ)
 
 fclean:	clean
+	$(MAKE) -C src/primitives fclean
 	$(RM) $(BINARY)
 
 re:	fclean all
