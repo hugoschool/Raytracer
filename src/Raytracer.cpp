@@ -31,9 +31,11 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
             throw std::exception();
         }
 
+        Math::Point3D cameraOrigin(x, y, z);
+
         _camera = Camera(
-            Math::Point3D(x, y, z),
-            Math::Rectangle3D(_width, _height, fov)
+            cameraOrigin,
+            Math::Rectangle3D(_width, _height, fov, cameraOrigin)
         );
     } catch (const std::exception &e) {
         std::cerr << "Wrong or missing camera parameter" << std::endl;

@@ -9,7 +9,8 @@ namespace Raytracer {
         class Rectangle3D {
             public:
                 Rectangle3D();
-                Rectangle3D(const std::size_t width, const std::size_t height, const double fov = 0.0);
+                Rectangle3D(const std::size_t width, const std::size_t height, const double fov = 0.0,
+                    const Math::Point3D cameraOrigin = Math::Point3D());
                 ~Rectangle3D() = default;
 
                 Point3D origin;

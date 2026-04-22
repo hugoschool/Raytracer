@@ -8,7 +8,8 @@ Raytracer::Math::Rectangle3D::Rectangle3D() : origin(-200, -200, -10), leftSide(
 {
 }
 
-Raytracer::Math::Rectangle3D::Rectangle3D(const std::size_t width, const std::size_t height, const double fov)
+Raytracer::Math::Rectangle3D::Rectangle3D(const std::size_t width, const std::size_t height, const double fov,
+    const Math::Point3D cameraOrigin)
 {
     const double aspectRatio = static_cast<double>(width) / height;
 
@@ -17,7 +18,7 @@ Raytracer::Math::Rectangle3D::Rectangle3D(const std::size_t width, const std::si
     const double h = 2 * distanceScreen * std::tan(theta / 2);
     const double w = h / aspectRatio;
 
-    origin = Math::Point3D(-(w / 2), -(h / 2), -distanceScreen);
+    origin = Math::Point3D(-(w / 2) + cameraOrigin.x, -(h / 2) + cameraOrigin.y, -distanceScreen + cameraOrigin.z);
     leftSide = Math::Vector3D(0, h, 0);
     bottomSide = Math::Vector3D(w, 0, 0);
 }
