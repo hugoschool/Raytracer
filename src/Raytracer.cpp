@@ -1,4 +1,5 @@
 #include "Raytracer.hpp"
+#include <algorithm>
 #include <iostream>
 
 // To be removed:
@@ -66,6 +67,12 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
         std::cerr << "Wrong primitives configuration" << std::endl;
         throw e;
     }
+
+    // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
+    std::sort(_primitives.begin(), _primitives.end(), [](Sphere &a, Sphere &b)
+    {
+        return a.center.z > b.center.z;
+    });
 }
 
 void Raytracer::Raytracer::exportPPM()
@@ -80,13 +87,17 @@ void Raytracer::Raytracer::exportPPM()
             double v = static_cast<double>(y) / _height;
             Ray r = _camera.ray(u, v);
 
+            bool hasHit = false;
             for (Sphere &s : _primitives) {
                 if (s.hits(r)) {
-                    std::cout << "255 0 0" << std::endl;
-                } else {
-                    std::cout << "0 0 255" << std::endl;
+                    hasHit = true;
+                    continue;
                 }
             }
+            if (hasHit)
+                std::cout << "255 0 0" << std::endl;
+            else
+                std::cout << "0 0 255" << std::endl;
         }
     }
 }
