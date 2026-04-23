@@ -1,14 +1,17 @@
 #include "Color.hpp"
 #include "Raytracer.hpp"
 #include <algorithm>
+#include <cstdlib>
 #include <iostream>
 
 // To be removed:
 #include "Math/Point3D.hpp"
+#include "Math/Vector3D.hpp"
+#include "lights/Light.hpp"
 #include "primitives/Sphere.hpp"
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(), _width(), _height()
+    _sceneFile(sceneFile), _config(), _width(), _height(), _light(Math::Point3D(-100,0,0))
 {
     // TODO: all of this should probably be moved to its own class
     _config.readFile(_sceneFile);
@@ -91,12 +94,16 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
         std::cerr << "Wrong primitives configuration" << std::endl;
         throw e;
     }
-
     // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
     std::sort(_primitives.begin(), _primitives.end(), [](Sphere &a, Sphere &b)
     {
         return a.center.z > b.center.z;
     });
+}
+
+double light_normal_angle(Raytracer::Math::Vector3D lightVector, Raytracer::Math::Vector3D normalVector)
+{
+    return std::abs(lightVector.dot(normalVector) / (lightVector.length() * normalVector.length()));
 }
 
 void Raytracer::Raytracer::exportPPM()
@@ -114,12 +121,19 @@ void Raytracer::Raytracer::exportPPM()
             bool hasHit = false;
             Color color;
             for (Sphere &s : _primitives) {
-                if (s.hits(r)) {
+                HitInfo hit = s.hits(r);
+                if (hit.hasHit()) {
                     hasHit = true;
-                    color = s.getColor(r);
+                    Math::Vector3D light_Vector = this->_light.getPos() - hit.getHitPos();
+                    color = hit.getColor();
+                    double multiplier = light_normal_angle(light_Vector, s.getNormal(hit.getHitPos()));
+                    color.r *= multiplier;
+                    color.b *= multiplier;
+                    color.g *= multiplier;
                     break;
                 }
             }
+
             if (hasHit) {
                 std::cout   << static_cast<unsigned int>(color.r) << " "
                             << static_cast<unsigned int>(color.g) << " "

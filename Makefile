@@ -18,15 +18,19 @@ MATH_SRC	:=	src/Math/Point3D.cpp \
 				src/Math/Matrix3x3.cpp \
 				src/Math/Matrix3x1.cpp
 
+LIGHT_SRC := src/lights/Light.cpp
 
 PRIMITIVES_SRC	:=	src/primitives/Sphere.cpp
+				
 
 SRC	:=	$(MATH_SRC) \
 		$(PRIMITIVES_SRC) \
+		$(LIGHT_SRC) \
 		src/main.cpp \
 		src/Raytracer.cpp \
 		src/Camera.cpp \
-		src/Ray.cpp
+		src/Ray.cpp \
+		src/HitInfo.cpp
 
 OBJ	:=	$(SRC:.cpp=.o)
 

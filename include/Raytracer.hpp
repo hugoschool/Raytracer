@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Camera.hpp"
+#include "lights/Light.hpp"
 #include "primitives/Sphere.hpp"
 #include <libconfig.h++>
 #include <string>
@@ -25,5 +26,6 @@ namespace Raytracer {
 
             // TODO: important, replace with the interface
             std::vector<Sphere> _primitives;
+            Light _light;
     };
 }
