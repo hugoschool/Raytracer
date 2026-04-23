@@ -1,5 +1,6 @@
 #include "Color.hpp"
 #include "DLLoader.hpp"
+#include "Exception.hpp"
 #include "Raytracer.hpp"
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
@@ -35,7 +36,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
             camera["resolution"].lookupValue("height", _height) &&
             camera.lookupValue("fieldOfView", fov)
         )) {
-            throw std::exception();
+            throw Exception("Invalid camera parameter");
         }
 
         Math::Point3D cameraOrigin(x, y, z);
@@ -67,7 +68,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 sphere.lookupValue("z", z) &&
                 sphere.lookupValue("r", r)
             )) {
-                throw std::exception();
+                throw Exception("Invalid sphere parameter");
             }
 
             unsigned int colorR;
@@ -80,7 +81,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 sphere["color"].lookupValue("g", colorG) &&
                 sphere["color"].lookupValue("b", colorB)
             )) {
-                throw std::exception();
+                throw Exception("Invalid color parameter");
             }
 
             // TODO: verify that color is < 255
