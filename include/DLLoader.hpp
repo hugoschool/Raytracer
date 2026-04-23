@@ -24,7 +24,7 @@ namespace Raytracer {
 
             void *openHandle()
             {
-                _handle = dlopen(_libraryName.c_str(), RTLD_NOW | RTLD_GLOBAL | RTLD_NODELETE);
+                _handle = dlopen(_libraryName.c_str(), RTLD_NOW);
                 if (_handle == nullptr)
                     throw Raytracer::Exception(dlerror());
                 return _handle;

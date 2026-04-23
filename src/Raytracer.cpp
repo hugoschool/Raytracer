@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <optional>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _sceneFile(sceneFile), _config(), _width(), _height(), _primitives(), _lights()
@@ -97,9 +98,19 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 static_cast<double>(r)
             };
 
-            DLLoader<IPrimitive> loader("./plugins/raytracer_primitive_sphere.so");
+            const std::string libName = "./plugins/raytracer_primitive_sphere.so";
+            std::optional<std::shared_ptr<DLLoader<IPrimitive>>> loader;
+
+            auto loaderLocation = _primitiveLoaders.find(libName);
+            if (loaderLocation != _primitiveLoaders.end()) {
+                loader = loaderLocation->second;
+            } else {
+                loader = std::make_shared<DLLoader<IPrimitive>>(libName);
+                _primitiveLoaders.insert({libName, loader.value()});
+            }
+
             _primitives.push_back(
-                loader.getInstance(std::string(Utils::primitiveEntrypoint), options)
+                loader.value()->getInstance(std::string(Utils::primitiveEntrypoint), options)
             );
         }
     } catch (const std::exception &e) {
