@@ -164,10 +164,10 @@ void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color, bool
                 continue;
             if (lightToNewObject.dot(light_Vector) > 0)
                 continue;
-            tmpMultiplier = 0;
+            tmpMultiplier = 0.0;
             break;
         }
-        multiplier += tmpMultiplier;
+        multiplier = std::max(multiplier, tmpMultiplier);
     }
 
     multiplier = std::min(1.0, multiplier);
