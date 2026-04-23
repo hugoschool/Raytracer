@@ -50,7 +50,6 @@ Raytracer::HitInfo Raytracer::Sphere::hits(Raytracer::Ray &ray)
     }
     Math::Point3D coincide = ray.origin + (ray.direction * k);
     return HitInfo(true, coincide, this->color);
-    return d >= 0;
 }
 
 Raytracer::Color Raytracer::Sphere::getColor(Raytracer::Ray &ray) const

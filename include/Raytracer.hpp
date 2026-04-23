@@ -28,6 +28,6 @@ namespace Raytracer {
 
             // TODO: important, replace with the interface
             std::vector<Sphere> _primitives;
-            Light _light;
+            std::vector<Light> _lights;
     };
 }

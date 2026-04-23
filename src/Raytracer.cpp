@@ -3,16 +3,18 @@
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <libconfig.h++>
 
 // To be removed:
 #include "HitInfo.hpp"
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
+#include "Ray.hpp"
 #include "lights/Light.hpp"
 #include "primitives/Sphere.hpp"
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(), _width(), _height(), _light(Math::Point3D(0,100,0))
+    _sceneFile(sceneFile), _config(), _width(), _height(), _lights()
 {
     // TODO: all of this should probably be moved to its own class
     _config.readFile(_sceneFile);
@@ -95,6 +97,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
         std::cerr << "Wrong primitives configuration" << std::endl;
         throw e;
     }
+    _lights.push_back(Light{Math::Point3D(0, 200, -200)});
     // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
     std::sort(_primitives.begin(), _primitives.end(), [](Sphere &a, Sphere &b)
     {
@@ -113,14 +116,35 @@ double Raytracer::Raytracer::lightLevel(Math::Vector3D &lightVector, Math::Vecto
 void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color, bool &hasHit)
 {
     hasHit = true;
-    Math::Vector3D light_Vector = this->_light.getPos() - hit.getHitPos();
-    for (Sphere &tmpSphere : _primitives) {
-        if (s.center == tmpSphere.center && s.radius == tmpSphere.radius)
-            continue;
-    }
-    Math::Vector3D normal = s.getNormal(hit.getHitPos());
+
     color = hit.getColor();
-    double multiplier = this->lightLevel(light_Vector, normal);
+    double multiplier = 0.0;
+    for (Light &light: _lights) {
+        Math::Vector3D light_Vector = light.getPos() - hit.getHitPos();
+        Math::Vector3D normal = s.getNormal(hit.getHitPos());
+        double tmpMultiplier = this->lightLevel(light_Vector, normal);
+        if (tmpMultiplier <= 0)
+            continue;
+        Ray lightToHit(light.getPos(), light_Vector);
+        for (Sphere &tmpSphere: _primitives) {
+            if (tmpSphere.center == s.center && s.radius == tmpSphere.radius)
+                continue;
+            HitInfo tmpHitInfo = tmpSphere.hits(lightToHit);
+            if (!tmpHitInfo.hasHit())
+                continue;
+            // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
+            Math::Vector3D lightToNewObject = light.getPos() - tmpHitInfo.getHitPos();
+            if (lightToNewObject.length() > light_Vector.length())
+                continue;
+            if (lightToNewObject.dot(light_Vector) > 0)
+                continue;
+            tmpMultiplier = 0;
+            break;
+        }
+        multiplier += tmpMultiplier;
+    }
+
+    multiplier = std::min(1.0, multiplier);
     color.r *= multiplier;
     color.b *= multiplier;
     color.g *= multiplier;
@@ -147,6 +171,7 @@ void Raytracer::Raytracer::exportPPM()
                     break;
                 }
             }
+
             if (hasHit) {
                 std::cout   << static_cast<unsigned int>(color.r) << " "
                             << static_cast<unsigned int>(color.g) << " "
