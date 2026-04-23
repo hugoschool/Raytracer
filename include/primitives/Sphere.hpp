@@ -5,9 +5,10 @@
 #include "Math/Vector3D.hpp"
 #include "Ray.hpp"
 #include "HitInfo.hpp"
+#include "primitives/IPrimitive.hpp"
 
 namespace Raytracer {
-    class Sphere {
+    class Sphere : public IPrimitive{
         public:
             Sphere(const Math::Point3D &center, double radius, Color color);
             ~Sphere() = default;

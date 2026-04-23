@@ -14,6 +14,7 @@ namespace Raytracer {
                 Vector3D operator-(const Point3D &) const;
 
                 Point3D operator+(const Vector3D &) const;
+                bool operator==(const Point3D &) const;
 
                 double x;
                 double y;

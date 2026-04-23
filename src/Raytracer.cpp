@@ -5,13 +5,14 @@
 #include <iostream>
 
 // To be removed:
+#include "HitInfo.hpp"
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "lights/Light.hpp"
 #include "primitives/Sphere.hpp"
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(), _width(), _height(), _light(Math::Point3D(-100,0,0))
+    _sceneFile(sceneFile), _config(), _width(), _height(), _light(Math::Point3D(0,100,0))
 {
     // TODO: all of this should probably be moved to its own class
     _config.readFile(_sceneFile);
@@ -101,9 +102,28 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     });
 }
 
-double light_normal_angle(Raytracer::Math::Vector3D lightVector, Raytracer::Math::Vector3D normalVector)
+
+double Raytracer::Raytracer::lightLevel(Math::Vector3D &lightVector, Math::Vector3D &normalVector)
 {
-    return std::abs(lightVector.dot(normalVector) / (lightVector.length() * normalVector.length()));
+    double value = lightVector.dot(normalVector) / (lightVector.length() * normalVector.length());
+    value = std::max(0.0, value);
+    return value;
+}
+
+void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color, bool &hasHit)
+{
+    hasHit = true;
+    Math::Vector3D light_Vector = this->_light.getPos() - hit.getHitPos();
+    for (Sphere &tmpSphere : _primitives) {
+        if (s.center == tmpSphere.center && s.radius == tmpSphere.radius)
+            continue;
+    }
+    Math::Vector3D normal = s.getNormal(hit.getHitPos());
+    color = hit.getColor();
+    double multiplier = this->lightLevel(light_Vector, normal);
+    color.r *= multiplier;
+    color.b *= multiplier;
+    color.g *= multiplier;
 }
 
 void Raytracer::Raytracer::exportPPM()
@@ -123,17 +143,10 @@ void Raytracer::Raytracer::exportPPM()
             for (Sphere &s : _primitives) {
                 HitInfo hit = s.hits(r);
                 if (hit.hasHit()) {
-                    hasHit = true;
-                    Math::Vector3D light_Vector = this->_light.getPos() - hit.getHitPos();
-                    color = hit.getColor();
-                    double multiplier = light_normal_angle(light_Vector, s.getNormal(hit.getHitPos()));
-                    color.r *= multiplier;
-                    color.b *= multiplier;
-                    color.g *= multiplier;
+                    this->handleHit(s, hit, color, hasHit);
                     break;
                 }
             }
-
             if (hasHit) {
                 std::cout   << static_cast<unsigned int>(color.r) << " "
                             << static_cast<unsigned int>(color.g) << " "

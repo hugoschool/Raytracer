@@ -1,3 +1,4 @@
+#pragma once
 #include "Color.hpp"
 #include "Math/Point3D.hpp"
 namespace Raytracer {
