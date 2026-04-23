@@ -14,7 +14,7 @@
 #include "primitives/Sphere.hpp"
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(), _width(), _height(), _lights()
+    _sceneFile(sceneFile), _config(), _width(), _height(), _primitives(), _lights()
 {
     // TODO: all of this should probably be moved to its own class
     _config.readFile(_sceneFile);
@@ -103,6 +103,32 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     {
         return a.center.z > b.center.z;
     });
+
+    // TODO: once again, remove hardcode here
+    try {
+        const libconfig::Setting &pointLights = root["lights"]["point"];
+        int count = pointLights.getLength();
+
+        for (int i = 0; i < count; i++) {
+            const libconfig::Setting &light = pointLights[i];
+            long long x = 0;
+            long long y = 0;
+            long long z = 0;
+
+            if (!(
+                light.lookupValue("x", x) &&
+                light.lookupValue("y", y) &&
+                light.lookupValue("z", z)
+            )) {
+                throw std::exception();
+            }
+
+            _lights.push_back({Math::Point3D(x, y, z)});
+        }
+    } catch (const std::exception &e) {
+        std::cerr << "Wrong light configuration" << std::endl;
+        throw e;
+    }
 }
 
 
