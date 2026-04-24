@@ -171,9 +171,7 @@ void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color, bool
     }
 
     multiplier = std::min(1.0, multiplier);
-    color.r *= multiplier;
-    color.b *= multiplier;
-    color.g *= multiplier;
+    color = color * multiplier;
 }
 
 void Raytracer::Raytracer::exportPPM()
