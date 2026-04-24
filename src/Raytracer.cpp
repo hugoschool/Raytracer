@@ -97,7 +97,6 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
         std::cerr << "Wrong primitives configuration" << std::endl;
         throw e;
     }
-    _lights.push_back(Light{Math::Point3D(0, 200, -200)});
     // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
     std::sort(_primitives.begin(), _primitives.end(), [](Sphere &a, Sphere &b)
     {
@@ -132,12 +131,10 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
 }
 
 
-void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color, bool &hasHit)
+void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color)
 {
-    hasHit = true;
-
-    color = hit.getColor();
     double multiplier = 0.0;
+    color = hit.getColor();
     for (Light &light: _lights) {
         Math::Vector3D light_Vector = light.getPos() - hit.getHitPos();
         Math::Vector3D normal = s.getNormal(hit.getHitPos());
@@ -160,9 +157,8 @@ void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color, bool
             tmpMultiplier = 0.0;
             break;
         }
-        multiplier = std::max(multiplier, tmpMultiplier);
+        multiplier += tmpMultiplier;
     }
-
     multiplier = std::min(1.0, multiplier);
     color = color * multiplier;
 }
@@ -184,7 +180,8 @@ void Raytracer::Raytracer::exportPPM()
             for (Sphere &s : _primitives) {
                 HitInfo hit = s.hits(r);
                 if (hit.hasHit()) {
-                    this->handleHit(s, hit, color, hasHit);
+                    hasHit = true;
+                    this->handleHit(s, hit, color);
                     break;
                 }
             }
