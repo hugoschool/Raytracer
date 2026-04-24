@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "lights/Light.hpp"
+#include "lights/ILight.hpp"
 #include "DLLoader.hpp"
 #include "primitives/IPrimitive.hpp"
 #include <libconfig.h++>
@@ -29,6 +29,6 @@ namespace Raytracer {
 
             std::map<const std::string, std::shared_ptr<DLLoader<IPrimitive>>> _primitiveLoaders;
             std::vector<std::shared_ptr<IPrimitive>> _primitives;
-            std::vector<Light> _lights;
+            std::vector<std::shared_ptr<ILight>> _lights;
     };
 }

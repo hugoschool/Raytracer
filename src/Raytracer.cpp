@@ -5,7 +5,8 @@
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "Ray.hpp"
-#include "lights/Light.hpp"
+#include "lights/ILight.hpp"
+#include "lights/LightOptions.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
 #include "Utils.hpp"
@@ -13,6 +14,9 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+
+// To be removed:
+#include "lights/PointLight.hpp"
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _sceneFile(sceneFile), _config(), _width(), _height(), _primitives(), _lights()
@@ -117,7 +121,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
         std::cerr << "Wrong primitives configuration" << std::endl;
         throw e;
     }
-    _lights.push_back(Light{Math::Point3D(0, 200, -200)});
+
     // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
     std::sort(_primitives.begin(), _primitives.end(), [](std::shared_ptr<IPrimitive> &a, std::shared_ptr<IPrimitive> &b)
     {
@@ -143,7 +147,12 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 throw std::exception();
             }
 
-            _lights.push_back({Math::Point3D(x, y, z)});
+            LightOptions options = {
+                .position = Math::Point3D(x, y, z),
+                .color = Color(),
+            };
+
+            _lights.push_back(std::make_shared<PointLight>(options));
         }
     } catch (const std::exception &e) {
         std::cerr << "Wrong light configuration" << std::endl;
@@ -156,13 +165,13 @@ void Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hi
 {
     color = hit.getColor();
     double multiplier = 0.0;
-    for (Light &light: _lights) {
-        Math::Vector3D light_Vector = light.getPos() - hit.getHitPos();
+    for (std::shared_ptr<ILight> &light: _lights) {
+        Math::Vector3D light_Vector = light->getOptions().position - hit.getHitPos();
         Math::Vector3D normal = s->getNormal(hit.getHitPos());
         double tmpMultiplier = light_Vector.cosine(normal);
         if (tmpMultiplier <= 0)
             continue;
-        Ray lightToHit(light.getPos(), light_Vector);
+        Ray lightToHit(light->getOptions().position, light_Vector);
         for (std::shared_ptr<IPrimitive> &tmpSphere: _primitives) {
             if (tmpSphere.get() == s.get())
                 continue;
@@ -170,7 +179,7 @@ void Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hi
             if (!tmpHitInfo.hasHit())
                 continue;
             // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
-            Math::Vector3D lightToNewObject = light.getPos() - tmpHitInfo.getHitPos();
+            Math::Vector3D lightToNewObject = light->getOptions().position - tmpHitInfo.getHitPos();
             if (lightToNewObject.length() > light_Vector.length())
                 continue;
             if (lightToNewObject.dot(light_Vector) > 0)

@@ -38,7 +38,8 @@ export COMMON_SRC
 # Disable "Entering directory" for every -C option
 MAKEFLAGS += --no-print-directory
 
-LIGHT_SRC := src/lights/Light.cpp
+LIGHT_SRC :=	src/lights/ALight.cpp \
+				src/lights/PointLight.cpp
 
 SRC	:=	$(COMMON_SRC) \
 		$(MATH_SRC) \
