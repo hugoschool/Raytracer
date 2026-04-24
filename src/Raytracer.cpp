@@ -1,17 +1,19 @@
 #include "Color.hpp"
+#include "DLLoader.hpp"
+#include "Exception.hpp"
 #include "Raytracer.hpp"
-#include <algorithm>
-#include <cstdlib>
-#include <iostream>
-#include <libconfig.h++>
-
-// To be removed:
-#include "HitInfo.hpp"
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "Ray.hpp"
-#include "lights/Light.hpp"
-#include "primitives/Sphere.hpp"
+#include "lights/ILight.hpp"
+#include "lights/LightOptions.hpp"
+#include "primitives/IPrimitive.hpp"
+#include "primitives/PrimitiveOptions.hpp"
+#include "Utils.hpp"
+#include <algorithm>
+#include <iostream>
+#include <memory>
+#include <optional>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _sceneFile(sceneFile), _config(), _width(), _height(), _primitives(), _lights()
@@ -36,7 +38,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
             camera["resolution"].lookupValue("height", _height) &&
             camera.lookupValue("fieldOfView", fov)
         )) {
-            throw std::exception();
+            throw Exception("Invalid camera parameter");
         }
 
         Math::Point3D cameraOrigin(x, y, z);
@@ -68,7 +70,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 sphere.lookupValue("z", z) &&
                 sphere.lookupValue("r", r)
             )) {
-                throw std::exception();
+                throw Exception("Invalid sphere parameter");
             }
 
             unsigned int colorR;
@@ -81,7 +83,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 sphere["color"].lookupValue("g", colorG) &&
                 sphere["color"].lookupValue("b", colorB)
             )) {
-                throw std::exception();
+                throw Exception("Invalid color parameter");
             }
 
             // TODO: verify that color is < 255
@@ -91,17 +93,36 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 .b = static_cast<unsigned char>(colorB),
             };
 
-            _primitives.push_back({Math::Point3D(x, y, z), static_cast<double>(r), color});
+            PrimitiveOptions options = {
+                Math::Point3D(x, y, z),
+                color,
+                static_cast<double>(r)
+            };
+
+            const std::string libName = "./plugins/raytracer_primitive_sphere.so";
+            std::optional<std::shared_ptr<DLLoader<IPrimitive>>> loader;
+
+            auto loaderLocation = _primitiveLoaders.find(libName);
+            if (loaderLocation != _primitiveLoaders.end()) {
+                loader = loaderLocation->second;
+            } else {
+                loader = std::make_shared<DLLoader<IPrimitive>>(libName);
+                _primitiveLoaders.insert({libName, loader.value()});
+            }
+
+            _primitives.push_back(
+                loader.value()->getInstance(std::string(Utils::primitiveEntrypoint), options)
+            );
         }
     } catch (const std::exception &e) {
         std::cerr << "Wrong primitives configuration" << std::endl;
         throw e;
     }
-    _lights.push_back(Light{Math::Point3D(0, 200, -200)});
+
     // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
-    std::sort(_primitives.begin(), _primitives.end(), [](Sphere &a, Sphere &b)
+    std::sort(_primitives.begin(), _primitives.end(), [](std::shared_ptr<IPrimitive> &a, std::shared_ptr<IPrimitive> &b)
     {
-        return a.center.z > b.center.z;
+        return a->getOptions().center.z > b->getOptions().center.z;
     });
 
     // TODO: once again, remove hardcode here
@@ -123,7 +144,25 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 throw std::exception();
             }
 
-            _lights.push_back({Math::Point3D(x, y, z)});
+            LightOptions options = {
+                .position = Math::Point3D(x, y, z),
+                .color = Color(),
+            };
+
+            const std::string libName = "./plugins/raytracer_light_point.so";
+            std::optional<std::shared_ptr<DLLoader<ILight>>> loader;
+
+            auto loaderLocation = _lightLoaders.find(libName);
+            if (loaderLocation != _lightLoaders.end()) {
+                loader = loaderLocation->second;
+            } else {
+                loader = std::make_shared<DLLoader<ILight>>(libName);
+                _lightLoaders.insert({libName, loader.value()});
+            }
+
+            _lights.push_back(
+                loader.value()->getInstance(std::string(Utils::lightEntrypoint), options)
+            );
         }
     } catch (const std::exception &e) {
         std::cerr << "Wrong light configuration" << std::endl;
@@ -132,27 +171,25 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
 }
 
 
-void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color, bool &hasHit)
+void Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color)
 {
-    hasHit = true;
-
     color = hit.getColor();
     double multiplier = 0.0;
-    for (Light &light: _lights) {
-        Math::Vector3D light_Vector = light.getPos() - hit.getHitPos();
-        Math::Vector3D normal = s.getNormal(hit.getHitPos());
+    for (std::shared_ptr<ILight> &light: _lights) {
+        Math::Vector3D light_Vector = light->getOptions().position - hit.getHitPos();
+        Math::Vector3D normal = s->getNormal(hit.getHitPos());
         double tmpMultiplier = light_Vector.cosine(normal);
         if (tmpMultiplier <= 0)
             continue;
-        Ray lightToHit(light.getPos(), light_Vector);
-        for (Sphere &tmpSphere: _primitives) {
-            if (tmpSphere.center == s.center && s.radius == tmpSphere.radius)
+        Ray lightToHit(light->getOptions().position, light_Vector);
+        for (std::shared_ptr<IPrimitive> &tmpSphere: _primitives) {
+            if (tmpSphere.get() == s.get())
                 continue;
-            HitInfo tmpHitInfo = tmpSphere.hits(lightToHit);
+            HitInfo tmpHitInfo = tmpSphere->hits(lightToHit);
             if (!tmpHitInfo.hasHit())
                 continue;
             // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
-            Math::Vector3D lightToNewObject = light.getPos() - tmpHitInfo.getHitPos();
+            Math::Vector3D lightToNewObject = light->getOptions().position - tmpHitInfo.getHitPos();
             if (lightToNewObject.length() > light_Vector.length())
                 continue;
             if (lightToNewObject.dot(light_Vector) > 0)
@@ -181,10 +218,11 @@ void Raytracer::Raytracer::exportPPM()
 
             bool hasHit = false;
             Color color;
-            for (Sphere &s : _primitives) {
-                HitInfo hit = s.hits(r);
+            for (std::shared_ptr<IPrimitive> &ptr : _primitives) {
+                HitInfo hit = ptr->hits(r);
                 if (hit.hasHit()) {
-                    this->handleHit(s, hit, color, hasHit);
+                    this->handleHit(ptr, hit, color);
+                    hasHit = true;
                     break;
                 }
             }

@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "Math/Vector3D.hpp"
-#include "lights/Light.hpp"
-#include "primitives/Sphere.hpp"
+#include "lights/ILight.hpp"
+#include "DLLoader.hpp"
+#include "primitives/IPrimitive.hpp"
 #include <libconfig.h++>
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -23,10 +25,11 @@ namespace Raytracer {
             Camera _camera;
             unsigned int _width;
             unsigned int _height;
-            void handleHit(Sphere &s, HitInfo &hit, Color &color, bool &hasHit);
+            void handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color);
 
-            // TODO: important, replace with the interface
-            std::vector<Sphere> _primitives;
-            std::vector<Light> _lights;
+            std::map<const std::string, std::shared_ptr<DLLoader<ILight>>> _lightLoaders;
+            std::map<const std::string, std::shared_ptr<DLLoader<IPrimitive>>> _primitiveLoaders;
+            std::vector<std::shared_ptr<IPrimitive>> _primitives;
+            std::vector<std::shared_ptr<ILight>> _lights;
     };
 }

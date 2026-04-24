@@ -3,11 +3,12 @@
 #include "Math/Vector3D.hpp"
 #include "primitives/Sphere.hpp"
 #include "Ray.hpp"
+#include "primitives/APrimitive.hpp"
+#include "primitives/PrimitiveOptions.hpp"
 #include <cmath>
 #include <cstdlib>
 
-Raytracer::Sphere::Sphere(const Math::Point3D &center, double radius, Color color) :
-    center(center.x, center.y, center.z), radius(radius), color(color)
+Raytracer::Sphere::Sphere(Raytracer::PrimitiveOptions options) : APrimitive(options)
 {
 }
 
@@ -31,10 +32,10 @@ Raytracer::Sphere::Sphere(const Math::Point3D &center, double radius, Color colo
 //
 Raytracer::HitInfo Raytracer::Sphere::hits(Raytracer::Ray &ray)
 {
-    Math::Vector3D centerOffset = center - ray.origin;
+    Math::Vector3D centerOffset = _options.center - ray.origin;
     double a = ray.direction.dot(ray.direction);
     double b = 2 * ray.direction.x * centerOffset.x + 2 * ray.direction.y * centerOffset.y + 2 * ray.direction.z * centerOffset.z;
-    double c = centerOffset.dot(centerOffset) - std::pow(radius, 2);
+    double c = centerOffset.dot(centerOffset) - std::pow(_options.radius, 2);
     double d = std::pow(b, 2) - 4 * a * c;
 
     if (d < 0) {
@@ -49,18 +50,15 @@ Raytracer::HitInfo Raytracer::Sphere::hits(Raytracer::Ray &ray)
         k = std::min(std::abs(k1), std::abs(k2));
     }
     Math::Point3D coincide = ray.origin + (ray.direction * k);
-    return HitInfo(true, coincide, this->color);
+    return HitInfo(true, coincide, _options.color);
 }
 
-Raytracer::Color Raytracer::Sphere::getColor(Raytracer::Ray &ray) const
+Raytracer::Math::Vector3D Raytracer::Sphere::getNormal(const Math::Point3D point) const
 {
-    // TODO: change for light probably
-    static_cast<void>(ray);
-    return color;
+    return point - _options.center;
 }
 
-
-Raytracer::Math::Vector3D Raytracer::Sphere::getNormal(const Math::Point3D &point) const
+extern "C" Raytracer::IPrimitive *primitiveEntrypoint(Raytracer::PrimitiveOptions options)
 {
-    return point - this->center;
+    return new Raytracer::Sphere(options);
 }

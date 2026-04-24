@@ -3,6 +3,9 @@ raytracer
 *.a
 *.o
 *.so
+plugins/
+
+# Unwanted files
 *.ppm
 *.png
 screenshots/
