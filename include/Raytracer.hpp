@@ -24,7 +24,6 @@ namespace Raytracer {
             unsigned int _width;
             unsigned int _height;
             void handleHit(Sphere &s, HitInfo &hit, Color &color, bool &hasHit);
-            double lightLevel(Math::Vector3D &lightVector, Math::Vector3D &normal);
 
             // TODO: important, replace with the interface
             std::vector<Sphere> _primitives;

@@ -11,6 +11,7 @@ namespace Raytracer {
             Light(Math::Point3D, Color);
             Math::Point3D getPos();
             Color getColor();
+
         private:
             Math::Point3D _position;
             Color _color;

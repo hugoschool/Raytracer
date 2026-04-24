@@ -132,13 +132,6 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
 }
 
 
-double Raytracer::Raytracer::lightLevel(Math::Vector3D &lightVector, Math::Vector3D &normalVector)
-{
-    double value = lightVector.dot(normalVector) / (lightVector.length() * normalVector.length());
-    value = std::max(0.0, value);
-    return value;
-}
-
 void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color, bool &hasHit)
 {
     hasHit = true;
@@ -148,7 +141,7 @@ void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color, bool
     for (Light &light: _lights) {
         Math::Vector3D light_Vector = light.getPos() - hit.getHitPos();
         Math::Vector3D normal = s.getNormal(hit.getHitPos());
-        double tmpMultiplier = this->lightLevel(light_Vector, normal);
+        double tmpMultiplier = light_Vector.vectorCosine(normal);
         if (tmpMultiplier <= 0)
             continue;
         Ray lightToHit(light.getPos(), light_Vector);
