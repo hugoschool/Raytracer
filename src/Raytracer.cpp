@@ -1,14 +1,20 @@
 #include "Color.hpp"
 #include "Raytracer.hpp"
 #include <algorithm>
+#include <cstdlib>
 #include <iostream>
+#include <libconfig.h++>
 
 // To be removed:
+#include "HitInfo.hpp"
 #include "Math/Point3D.hpp"
+#include "Math/Vector3D.hpp"
+#include "Ray.hpp"
+#include "lights/Light.hpp"
 #include "primitives/Sphere.hpp"
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(), _width(), _height()
+    _sceneFile(sceneFile), _config(), _width(), _height(), _primitives(), _lights()
 {
     // TODO: all of this should probably be moved to its own class
     _config.readFile(_sceneFile);
@@ -91,12 +97,74 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
         std::cerr << "Wrong primitives configuration" << std::endl;
         throw e;
     }
-
+    _lights.push_back(Light{Math::Point3D(0, 200, -200)});
     // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
     std::sort(_primitives.begin(), _primitives.end(), [](Sphere &a, Sphere &b)
     {
         return a.center.z > b.center.z;
     });
+
+    // TODO: once again, remove hardcode here
+    try {
+        const libconfig::Setting &pointLights = root["lights"]["point"];
+        int count = pointLights.getLength();
+
+        for (int i = 0; i < count; i++) {
+            const libconfig::Setting &light = pointLights[i];
+            long long x = 0;
+            long long y = 0;
+            long long z = 0;
+
+            if (!(
+                light.lookupValue("x", x) &&
+                light.lookupValue("y", y) &&
+                light.lookupValue("z", z)
+            )) {
+                throw std::exception();
+            }
+
+            _lights.push_back({Math::Point3D(x, y, z)});
+        }
+    } catch (const std::exception &e) {
+        std::cerr << "Wrong light configuration" << std::endl;
+        throw e;
+    }
+}
+
+
+void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color, bool &hasHit)
+{
+    hasHit = true;
+
+    color = hit.getColor();
+    double multiplier = 0.0;
+    for (Light &light: _lights) {
+        Math::Vector3D light_Vector = light.getPos() - hit.getHitPos();
+        Math::Vector3D normal = s.getNormal(hit.getHitPos());
+        double tmpMultiplier = light_Vector.cosine(normal);
+        if (tmpMultiplier <= 0)
+            continue;
+        Ray lightToHit(light.getPos(), light_Vector);
+        for (Sphere &tmpSphere: _primitives) {
+            if (tmpSphere.center == s.center && s.radius == tmpSphere.radius)
+                continue;
+            HitInfo tmpHitInfo = tmpSphere.hits(lightToHit);
+            if (!tmpHitInfo.hasHit())
+                continue;
+            // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
+            Math::Vector3D lightToNewObject = light.getPos() - tmpHitInfo.getHitPos();
+            if (lightToNewObject.length() > light_Vector.length())
+                continue;
+            if (lightToNewObject.dot(light_Vector) > 0)
+                continue;
+            tmpMultiplier = 0.0;
+            break;
+        }
+        multiplier = std::max(multiplier, tmpMultiplier);
+    }
+
+    multiplier = std::min(1.0, multiplier);
+    color = color * multiplier;
 }
 
 void Raytracer::Raytracer::exportPPM()
@@ -114,12 +182,13 @@ void Raytracer::Raytracer::exportPPM()
             bool hasHit = false;
             Color color;
             for (Sphere &s : _primitives) {
-                if (s.hits(r)) {
-                    hasHit = true;
-                    color = s.getColor(r);
+                HitInfo hit = s.hits(r);
+                if (hit.hasHit()) {
+                    this->handleHit(s, hit, color, hasHit);
                     break;
                 }
             }
+
             if (hasHit) {
                 std::cout   << static_cast<unsigned int>(color.r) << " "
                             << static_cast<unsigned int>(color.g) << " "

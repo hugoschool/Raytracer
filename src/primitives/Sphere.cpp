@@ -1,8 +1,10 @@
 #include "Color.hpp"
+#include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "primitives/Sphere.hpp"
 #include "Ray.hpp"
 #include <cmath>
+#include <cstdlib>
 
 Raytracer::Sphere::Sphere(const Math::Point3D &center, double radius, Color color) :
     center(center.x, center.y, center.z), radius(radius), color(color)
@@ -27,7 +29,7 @@ Raytracer::Sphere::Sphere(const Math::Point3D &center, double radius, Color colo
 // To remedy this:
 // O = Sphere Center - Ray Origin
 //
-bool Raytracer::Sphere::hits(Raytracer::Ray &ray)
+Raytracer::HitInfo Raytracer::Sphere::hits(Raytracer::Ray &ray)
 {
     Math::Vector3D centerOffset = center - ray.origin;
     double a = ray.direction.dot(ray.direction);
@@ -35,7 +37,19 @@ bool Raytracer::Sphere::hits(Raytracer::Ray &ray)
     double c = centerOffset.dot(centerOffset) - std::pow(radius, 2);
     double d = std::pow(b, 2) - 4 * a * c;
 
-    return d >= 0;
+    if (d < 0) {
+        return HitInfo(false);
+    }
+    double k = 0;
+    if (d == 0) {
+        k = (-b) / (2*a);
+    } else {
+        double k1 = (-b -sqrt(d)) / (2 * a);
+        double k2 = (-b +sqrt(d)) / (2 * a);
+        k = std::min(std::abs(k1), std::abs(k2));
+    }
+    Math::Point3D coincide = ray.origin + (ray.direction * k);
+    return HitInfo(true, coincide, this->color);
 }
 
 Raytracer::Color Raytracer::Sphere::getColor(Raytracer::Ray &ray) const
@@ -43,4 +57,10 @@ Raytracer::Color Raytracer::Sphere::getColor(Raytracer::Ray &ray) const
     // TODO: change for light probably
     static_cast<void>(ray);
     return color;
+}
+
+
+Raytracer::Math::Vector3D Raytracer::Sphere::getNormal(const Math::Point3D &point) const
+{
+    return point - this->center;
 }

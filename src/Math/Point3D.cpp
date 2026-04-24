@@ -19,3 +19,9 @@ Raytracer::Math::Point3D Raytracer::Math::Point3D::operator+(const Vector3D &vec
 {
     return Raytracer::Math::Point3D(x + vec.x, y + vec.y, z + vec.z);
 }
+
+bool Raytracer::Math::Point3D::operator==(const Point3D &other) const
+{
+    return (this->x == other.x && this->y == other.y && this->z == other.z);
+}
+
