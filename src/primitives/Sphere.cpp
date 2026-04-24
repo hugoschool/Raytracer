@@ -1,4 +1,3 @@
-#include "Color.hpp"
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "primitives/Sphere.hpp"

@@ -12,12 +12,12 @@ Raytracer::Math::Vector3D::Vector3D(const Matrix3x1 &matrix) : x(matrix.get(0)),
 }
 
 
-double Raytracer::Math::Vector3D::length()
+double Raytracer::Math::Vector3D::length() const
 {
     return std::sqrt(std::pow(x, 2) + std::pow(y, 2) + std::pow(z, 2));
 }
 
-double Raytracer::Math::Vector3D::dot(Vector3D &vector)
+double Raytracer::Math::Vector3D::dot(const Vector3D &vector) const
 {
     return x * vector.x + y * vector.y + z * vector.z;
 }

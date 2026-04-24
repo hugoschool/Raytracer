@@ -52,7 +52,7 @@ void Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hi
             tmpMultiplier = 0.0;
             break;
         }
-        multiplier = std::max(multiplier, tmpMultiplier);
+        multiplier += tmpMultiplier;
     }
 
     multiplier = std::min(1.0, multiplier);
@@ -73,12 +73,15 @@ void Raytracer::Raytracer::exportPPM()
 
             bool hasHit = false;
             Color color;
+            double currLen = 0;
             for (std::shared_ptr<IPrimitive> &ptr : _primitives) {
                 HitInfo hit = ptr->hits(r);
                 if (hit.hasHit()) {
+                    if (currLen != 0 && currLen < (hit.getHitPos() - r.origin).length())
+                        continue;
                     this->handleHit(ptr, hit, color);
+                    currLen = (hit.getHitPos() - r.origin).length();
                     hasHit = true;
-                    break;
                 }
             }
 

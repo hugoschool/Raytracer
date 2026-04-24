@@ -9,10 +9,10 @@
 #include "primitives/PrimitiveOptions.hpp"
 
 namespace Raytracer {
-    class Sphere : public APrimitive {
+    class Plane : public APrimitive {
         public:
-            Sphere(PrimitiveOptions options);
-            ~Sphere() = default;
+            Plane(PrimitiveOptions options);
+            ~Plane() = default;
 
             HitInfo hits(Ray &ray) override;
             Math::Vector3D getNormal(const Math::Point3D) const override;
