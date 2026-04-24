@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Exception.hpp"
+#include "lights/LightOptions.hpp"
 #include "primitives/PrimitiveOptions.hpp"
 #include <dlfcn.h>
 #include <memory>
@@ -44,6 +45,22 @@ namespace Raytracer {
                     throw Raytracer::Exception("Impossible to find handle");
 
                 T *(*function)(PrimitiveOptions) = reinterpret_cast<T *(*)(PrimitiveOptions)>(dlsym(_handle, functionName.c_str()));
+                if (function == nullptr)
+                    throw Raytracer::Exception(dlerror());
+
+                T *instance = (*function)(options);
+                if (instance == nullptr)
+                    throw Raytracer::Exception("Impossible to find instance");
+
+                return std::shared_ptr<T>(instance);
+            };
+
+            std::shared_ptr<T> getInstance(const std::string functionName, Raytracer::LightOptions options) const
+            {
+                if (_handle == nullptr)
+                    throw Raytracer::Exception("Impossible to find handle");
+
+                T *(*function)(LightOptions) = reinterpret_cast<T *(*)(LightOptions)>(dlsym(_handle, functionName.c_str()));
                 if (function == nullptr)
                     throw Raytracer::Exception(dlerror());
 

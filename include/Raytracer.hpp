@@ -27,6 +27,7 @@ namespace Raytracer {
             unsigned int _height;
             void handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color);
 
+            std::map<const std::string, std::shared_ptr<DLLoader<ILight>>> _lightLoaders;
             std::map<const std::string, std::shared_ptr<DLLoader<IPrimitive>>> _primitiveLoaders;
             std::vector<std::shared_ptr<IPrimitive>> _primitives;
             std::vector<std::shared_ptr<ILight>> _lights;

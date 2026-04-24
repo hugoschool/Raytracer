@@ -38,12 +38,8 @@ export COMMON_SRC
 # Disable "Entering directory" for every -C option
 MAKEFLAGS += --no-print-directory
 
-LIGHT_SRC :=	src/lights/ALight.cpp \
-				src/lights/PointLight.cpp
-
 SRC	:=	$(COMMON_SRC) \
 		$(MATH_SRC) \
-		$(LIGHT_SRC) \
 		src/main.cpp \
 		src/Raytracer.cpp \
 		src/Camera.cpp \
@@ -55,20 +51,25 @@ BINARY	:=	raytracer
 
 all:	plugins .WAIT $(BINARY)
 
-plugins: primitives
+plugins: primitives lights
 
 primitives:
 	$(MAKE) -C src/primitives
+
+lights:
+	$(MAKE) -C src/lights
 
 $(BINARY):	$(OBJ)
 	$(CXX) -o $(BINARY) $(OBJ) $(LDFLAGS) $(LDLIBS)
 
 clean:
 	$(MAKE) -C src/primitives clean
+	$(MAKE) -C src/lights clean
 	$(RM) $(OBJ)
 
 fclean:	clean
 	$(MAKE) -C src/primitives fclean
+	$(MAKE) -C src/lights fclean
 	$(RM) $(BINARY)
 
 re:	fclean all

@@ -15,9 +15,6 @@
 #include <memory>
 #include <optional>
 
-// To be removed:
-#include "lights/PointLight.hpp"
-
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _sceneFile(sceneFile), _config(), _width(), _height(), _primitives(), _lights()
 {
@@ -152,7 +149,20 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
                 .color = Color(),
             };
 
-            _lights.push_back(std::make_shared<PointLight>(options));
+            const std::string libName = "./plugins/raytracer_light_point.so";
+            std::optional<std::shared_ptr<DLLoader<ILight>>> loader;
+
+            auto loaderLocation = _lightLoaders.find(libName);
+            if (loaderLocation != _lightLoaders.end()) {
+                loader = loaderLocation->second;
+            } else {
+                loader = std::make_shared<DLLoader<ILight>>(libName);
+                _lightLoaders.insert({libName, loader.value()});
+            }
+
+            _lights.push_back(
+                loader.value()->getInstance(std::string(Utils::lightEntrypoint), options)
+            );
         }
     } catch (const std::exception &e) {
         std::cerr << "Wrong light configuration" << std::endl;
