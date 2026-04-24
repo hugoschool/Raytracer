@@ -141,7 +141,7 @@ void Raytracer::Raytracer::handleHit(Sphere &s, HitInfo &hit, Color &color, bool
     for (Light &light: _lights) {
         Math::Vector3D light_Vector = light.getPos() - hit.getHitPos();
         Math::Vector3D normal = s.getNormal(hit.getHitPos());
-        double tmpMultiplier = light_Vector.vectorCosine(normal);
+        double tmpMultiplier = light_Vector.cosine(normal);
         if (tmpMultiplier <= 0)
             continue;
         Ray lightToHit(light.getPos(), light_Vector);

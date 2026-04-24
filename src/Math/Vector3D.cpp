@@ -121,7 +121,7 @@ Raytracer::Math::Vector3D Raytracer::Math::Vector3D::rotateZ(double degree) cons
     return Vector3D(vectorMatrix.rotateZ(degree));
 }
 
-double Raytracer::Math::Vector3D::vectorCosine(Vector3D &normal)
+double Raytracer::Math::Vector3D::cosine(Vector3D &normal)
 {
     double value = this->dot(normal) / (this->length() * normal.length());
     value = std::max(0.0, value);
