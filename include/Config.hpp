@@ -29,8 +29,7 @@ namespace Raytracer {
             std::optional<std::reference_wrapper<libconfig::Setting>> _root;
 
             // TODO: move to factory
-            std::map<const std::string, std::shared_ptr<DLLoader<IPrimitive>>> _primitiveLoaders;
-            std::map<const std::string, std::shared_ptr<DLLoader<ILight>>> _lightLoaders;
+            std::map<const std::string, std::shared_ptr<DLLoader>> _loaders;
 
             Color parseColor(const libconfig::Setting &setting) const;
     };

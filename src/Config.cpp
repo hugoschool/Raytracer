@@ -10,7 +10,7 @@
 #include <map>
 #include <memory>
 
-Raytracer::Config::Config(const std::string fileName) : _fileName(fileName), _config(), _primitiveLoaders()
+Raytracer::Config::Config(const std::string fileName) : _fileName(fileName), _config(), _loaders()
 {
     _config.readFile(_fileName);
     _root = _config.getRoot();
@@ -110,18 +110,18 @@ std::vector<std::shared_ptr<Raytracer::IPrimitive>> Raytracer::Config::parsePrim
 
             // TODO: All of this will probably get replaced by a factory.
             const std::string libName = "./plugins/raytracer_primitive_sphere.so";
-            std::optional<std::shared_ptr<DLLoader<IPrimitive>>> loader;
+            std::optional<std::shared_ptr<DLLoader>> loader;
 
-            auto loaderLocation = _primitiveLoaders.find(libName);
-            if (loaderLocation != _primitiveLoaders.end()) {
+            auto loaderLocation = _loaders.find(libName);
+            if (loaderLocation != _loaders.end()) {
                 loader = loaderLocation->second;
             } else {
-                loader = std::make_shared<DLLoader<IPrimitive>>(libName);
-                _primitiveLoaders.insert({libName, loader.value()});
+                loader = std::make_shared<DLLoader>(libName);
+                _loaders.insert({libName, loader.value()});
             }
 
             primitives.push_back(
-                loader.value()->getInstance(std::string(Utils::primitiveEntrypoint), options)
+                loader.value()->getInstance<IPrimitive>(std::string(Utils::primitiveEntrypoint), options)
             );
         }
 
@@ -160,18 +160,18 @@ std::vector<std::shared_ptr<Raytracer::ILight>> Raytracer::Config::parseLights()
             };
 
             const std::string libName = "./plugins/raytracer_light_point.so";
-            std::optional<std::shared_ptr<DLLoader<ILight>>> loader;
+            std::optional<std::shared_ptr<DLLoader>> loader;
 
-            auto loaderLocation = _lightLoaders.find(libName);
-            if (loaderLocation != _lightLoaders.end()) {
+            auto loaderLocation = _loaders.find(libName);
+            if (loaderLocation != _loaders.end()) {
                 loader = loaderLocation->second;
             } else {
-                loader = std::make_shared<DLLoader<ILight>>(libName);
-                _lightLoaders.insert({libName, loader.value()});
+                loader = std::make_shared<DLLoader>(libName);
+                _loaders.insert({libName, loader.value()});
             }
 
             lights.push_back(
-                loader.value()->getInstance(std::string(Utils::lightEntrypoint), options)
+                loader.value()->getInstance<ILight>(std::string(Utils::lightEntrypoint), options)
             );
         }
         return lights;

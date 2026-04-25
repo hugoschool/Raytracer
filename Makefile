@@ -43,6 +43,7 @@ SRC	:=	$(COMMON_SRC) \
 		src/main.cpp \
 		src/Raytracer.cpp \
 		src/Config.cpp \
+		src/DLLoader.cpp \
 		src/Camera.cpp \
 		src/Ray.cpp
 
