@@ -1,16 +1,13 @@
 #include "Config.hpp"
 #include "Camera.hpp"
 #include "Color.hpp"
-#include "DLLoader.hpp"
 #include "Exception.hpp"
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
-#include "Utils.hpp"
 #include <libconfig.h++>
-#include <map>
 #include <memory>
 
-Raytracer::Config::Config(const std::string fileName) : _fileName(fileName), _config(), _loaders()
+Raytracer::Config::Config(const std::string fileName) : _fileName(fileName), _config(), _factory()
 {
     _config.readFile(_fileName);
     _root = _config.getRoot();
@@ -108,20 +105,8 @@ std::vector<std::shared_ptr<Raytracer::IPrimitive>> Raytracer::Config::parsePrim
                 static_cast<double>(r)
             };
 
-            // TODO: All of this will probably get replaced by a factory.
-            const std::string libName = "./plugins/raytracer_primitive_sphere.so";
-            std::optional<std::shared_ptr<DLLoader>> loader;
-
-            auto loaderLocation = _loaders.find(libName);
-            if (loaderLocation != _loaders.end()) {
-                loader = loaderLocation->second;
-            } else {
-                loader = std::make_shared<DLLoader>(libName);
-                _loaders.insert({libName, loader.value()});
-            }
-
             primitives.push_back(
-                loader.value()->getInstance<IPrimitive>(std::string(Utils::primitiveEntrypoint), options)
+                _factory.createPrimitive("sphere", options)
             );
         }
 
@@ -159,19 +144,8 @@ std::vector<std::shared_ptr<Raytracer::ILight>> Raytracer::Config::parseLights()
                 .color = Color(),
             };
 
-            const std::string libName = "./plugins/raytracer_light_point.so";
-            std::optional<std::shared_ptr<DLLoader>> loader;
-
-            auto loaderLocation = _loaders.find(libName);
-            if (loaderLocation != _loaders.end()) {
-                loader = loaderLocation->second;
-            } else {
-                loader = std::make_shared<DLLoader>(libName);
-                _loaders.insert({libName, loader.value()});
-            }
-
             lights.push_back(
-                loader.value()->getInstance<ILight>(std::string(Utils::lightEntrypoint), options)
+                _factory.createLight("point", options)
             );
         }
         return lights;

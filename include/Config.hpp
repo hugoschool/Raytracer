@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "DLLoader.hpp"
+#include "Factory.hpp"
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
 #include <functional>
 #include <libconfig.h++>
-#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -28,8 +27,7 @@ namespace Raytracer {
             libconfig::Config _config;
             std::optional<std::reference_wrapper<libconfig::Setting>> _root;
 
-            // TODO: move to factory
-            std::map<const std::string, std::shared_ptr<DLLoader>> _loaders;
+            Factory _factory;
 
             Color parseColor(const libconfig::Setting &setting) const;
     };
