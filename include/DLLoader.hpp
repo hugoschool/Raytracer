@@ -29,6 +29,16 @@ namespace Raytracer {
             }
 
             template <typename T, typename O>
+            static std::shared_ptr<T> turnFunctionIntoInstance(std::function<T *(O)> function, O options)
+            {
+                T *instance = function(options);
+                if (instance == nullptr)
+                    throw Raytracer::Exception("Impossible to create instance");
+
+                return std::shared_ptr<T>(instance);
+            }
+
+            template <typename T, typename O>
             std::shared_ptr<T> getInstance(const std::string functionName, O options) const
             {
                 if (_handle == nullptr)
@@ -38,11 +48,7 @@ namespace Raytracer {
                 if (!function)
                     throw Raytracer::Exception(dlerror());
 
-                T *instance = function(options);
-                if (instance == nullptr)
-                    throw Raytracer::Exception("Impossible to find instance");
-
-                return std::shared_ptr<T>(instance);
+                return turnFunctionIntoInstance(function, options);
             };
 
             void closeHandle();
