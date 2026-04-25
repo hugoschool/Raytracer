@@ -3,12 +3,13 @@
 #include "Camera.hpp"
 #include "Ray.hpp"
 
-Raytracer::Camera::Camera() : origin(0, 0, 0), screen()
+Raytracer::Camera::Camera() : origin(0, 0, 0), screen(), width(), height()
 {
 }
 
-Raytracer::Camera::Camera(const Math::Point3D origin, const Math::Rectangle3D screen) :
-    origin(origin), screen(screen)
+Raytracer::Camera::Camera(const Math::Point3D origin, const Math::Rectangle3D screen,
+    const std::size_t width, const std::size_t height) :
+    origin(origin), screen(screen), width(width), height(height)
 {
 }
 
