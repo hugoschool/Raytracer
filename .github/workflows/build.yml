@@ -1,0 +1,23 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    if: ${{ github.repository_owner == 'hugoschool' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Install libconfig++
+        run: |
+          sudo apt-get update && sudo apt-get install -y libconfig++-dev
+
+      - name: Build
+        timeout-minutes: 2
+        run: make -j`nproc`
