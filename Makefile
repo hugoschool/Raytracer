@@ -52,7 +52,7 @@ OBJ	:=	$(SRC:.cpp=.o)
 
 BINARY	:=	raytracer
 
-all:	plugins .WAIT $(BINARY)
+all:	plugins $(BINARY)
 
 plugins: primitives lights
 
