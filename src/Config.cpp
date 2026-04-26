@@ -73,43 +73,61 @@ Raytracer::Color Raytracer::Config::parseColor(const libconfig::Setting &setting
     };
 }
 
+Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libconfig::Setting &setting) const
+{
+    long long x = 0;
+    long long y = 0;
+    long long z = 0;
+    long long r = 0;
+
+    setting.lookupValue("x", x);
+    setting.lookupValue("y", y);
+    setting.lookupValue("z", z);
+    setting.lookupValue("r", r);
+
+    Color color = parseColor(setting);
+
+    return {
+        .center = Math::Point3D(x, y, z),
+        .color = color,
+        .radius = static_cast<double>(r)
+    };
+}
+
+Raytracer::LightOptions Raytracer::Config::parseLightOptions(const libconfig::Setting &setting) const
+{
+    long long x = 0;
+    long long y = 0;
+    long long z = 0;
+
+    setting.lookupValue("x", x);
+    setting.lookupValue("y", y);
+    setting.lookupValue("z", z);
+
+    return {
+        .position = Math::Point3D(x, y, z),
+        .color = Color(),
+    };
+}
+
 std::vector<std::shared_ptr<Raytracer::IPrimitive>> Raytracer::Config::parsePrimitives()
 {
     std::vector<std::shared_ptr<Raytracer::IPrimitive>> primitives;
 
     try {
-        const libconfig::Setting &spheres = _root->get()["primitives"]["spheres"];
-        int count = spheres.getLength();
+        for (const libconfig::Setting &primitiveCategory : _root->get()["primitives"]) {
+            int count = primitiveCategory.getLength();
 
-        for (int i = 0; i < count; i++) {
-            const libconfig::Setting &sphere = spheres[i];
-            long long x = 0;
-            long long y = 0;
-            long long z = 0;
-            long long r = 0;
+            for (int i = 0; i < count; i++) {
+                const libconfig::Setting &primitive = primitiveCategory[i];
 
-            if (!(
-                sphere.lookupValue("x", x) &&
-                sphere.lookupValue("y", y) &&
-                sphere.lookupValue("z", z) &&
-                sphere.lookupValue("r", r)
-            )) {
-                throw Exception("Invalid sphere parameter");
+                const PrimitiveOptions options = parsePrimitiveOptions(primitive);
+
+                primitives.push_back(
+                    _factory.createPrimitive(primitiveCategory.getName(), options)
+                );
             }
-
-            Color color = parseColor(sphere);
-
-            PrimitiveOptions options = {
-                Math::Point3D(x, y, z),
-                color,
-                static_cast<double>(r)
-            };
-
-            primitives.push_back(
-                _factory.createPrimitive("sphere", options)
-            );
         }
-
         return primitives;
     } catch (const std::exception &e) {
         throw Raytracer::Exception("Wrong primitives configuration");
@@ -120,33 +138,19 @@ std::vector<std::shared_ptr<Raytracer::ILight>> Raytracer::Config::parseLights()
 {
     std::vector<std::shared_ptr<Raytracer::ILight>> lights;
 
-    // TODO: once again, remove hardcode here
     try {
-        const libconfig::Setting &pointLights = _root->get()["lights"]["point"];
-        int count = pointLights.getLength();
+        for (const libconfig::Setting &lightCategory : _root->get()["lights"]) {
+            int count = lightCategory.getLength();
 
-        for (int i = 0; i < count; i++) {
-            const libconfig::Setting &light = pointLights[i];
-            long long x = 0;
-            long long y = 0;
-            long long z = 0;
+            for (int i = 0; i < count; i++) {
+                const libconfig::Setting &light = lightCategory[i];
 
-            if (!(
-                light.lookupValue("x", x) &&
-                light.lookupValue("y", y) &&
-                light.lookupValue("z", z)
-            )) {
-                throw std::exception();
+                const LightOptions options = parseLightOptions(light);
+
+                lights.push_back(
+                    _factory.createLight(lightCategory.getName(), options)
+                );
             }
-
-            LightOptions options = {
-                .position = Math::Point3D(x, y, z),
-                .color = Color(),
-            };
-
-            lights.push_back(
-                _factory.createLight("point", options)
-            );
         }
         return lights;
     } catch (const std::exception &e) {
