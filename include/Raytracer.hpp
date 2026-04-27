@@ -4,9 +4,7 @@
 #include "Config.hpp"
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
-#include <cstddef>
 #include <libconfig.h++>
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>

@@ -5,7 +5,6 @@
 #include "Ray.hpp"
 #include "primitives/APrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
-#include <iostream>
 
 Raytracer::Plane::Plane(Raytracer::PrimitiveOptions options) : APrimitive(options)
 {
@@ -13,8 +12,11 @@ Raytracer::Plane::Plane(Raytracer::PrimitiveOptions options) : APrimitive(option
 
 Raytracer::HitInfo Raytracer::Plane::hits(Raytracer::Ray &ray)
 {
+    if (ray.direction.dot(this->getNormal(Math::Point3D(0,0,0))) == 0) {
+        return HitInfo(false);
+    }
+
     double k_vec = 0.0;
-    // std::cerr <<"x, y, z: " << this->_options.center.x << " " << this->_options.center.y << " " << this->_options.center.z << std::endl;
     if (_options.axis == PlaneAxis::X && ray.direction.x != 0) {
         k_vec = (this->_options.position - ray.origin.x) / ray.direction.x;
     } else if (_options.axis == PlaneAxis::Y && ray.direction.y != 0) {
@@ -26,11 +28,10 @@ Raytracer::HitInfo Raytracer::Plane::hits(Raytracer::Ray &ray)
     if (k_vec <= 0)
         return HitInfo(false);
     Math::Point3D coincide = ray.origin + (ray.direction * k_vec);
-    // std::cerr << "got coincide x, y, z: " << coincide.x << " " << coincide.y << " " << coincide.z << std::endl;
     return HitInfo(true, coincide, _options.color);
 }
 
-Raytracer::Math::Vector3D Raytracer::Plane::getNormal(const Math::Point3D point) const
+Raytracer::Math::Vector3D Raytracer::Plane::getNormal(const Math::Point3D) const
 {
     Math::Vector3D normal;
     if (this->_options.axis == PlaneAxis::X)
