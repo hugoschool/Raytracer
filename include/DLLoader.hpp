@@ -1,85 +1,57 @@
 #pragma once
 
 #include "Exception.hpp"
-#include "lights/LightOptions.hpp"
-#include "primitives/PrimitiveOptions.hpp"
 #include <dlfcn.h>
+#include <functional>
 #include <memory>
 #include <string>
 
 namespace Raytracer {
-    template <typename T>
     class DLLoader {
         public:
             DLLoader() = delete;
 
-            DLLoader(const std::string libraryName) : _libraryName(libraryName), _handle(nullptr)
-            {
-                openHandle();
-            };
+            DLLoader(const std::string libraryName);
 
-            ~DLLoader()
-            {
-                closeHandle();
-            };
+            ~DLLoader();
 
-            void *openHandle()
-            {
-                _handle = dlopen(_libraryName.c_str(), RTLD_NOW);
-                if (_handle == nullptr)
-                    throw Raytracer::Exception(dlerror());
-                return _handle;
-            }
+            void *openHandle();
 
-            bool symbolExists(const std::string symbol) const
-            {
-                if (_handle == nullptr)
-                    return false;
+            bool symbolExists(const std::string symbol) const;
 
-                return dlsym(_handle, symbol.c_str()) != nullptr;
-            }
-
-            std::shared_ptr<T> getInstance(const std::string functionName, Raytracer::PrimitiveOptions options) const
+            template <typename T, typename O>
+            std::function<T *(O)> getSymbol(const std::string functionName) const
             {
                 if (_handle == nullptr)
                     throw Raytracer::Exception("Impossible to find handle");
 
-                T *(*function)(PrimitiveOptions) = reinterpret_cast<T *(*)(PrimitiveOptions)>(dlsym(_handle, functionName.c_str()));
-                if (function == nullptr)
-                    throw Raytracer::Exception(dlerror());
+                return reinterpret_cast<T *(*)(O)>(dlsym(_handle, functionName.c_str()));
+            }
 
-                T *instance = (*function)(options);
+            template <typename T, typename O>
+            static std::shared_ptr<T> turnFunctionIntoInstance(std::function<T *(O)> function, O options)
+            {
+                T *instance = function(options);
                 if (instance == nullptr)
-                    throw Raytracer::Exception("Impossible to find instance");
+                    throw Raytracer::Exception("Impossible to create instance");
 
                 return std::shared_ptr<T>(instance);
-            };
+            }
 
-            std::shared_ptr<T> getInstance(const std::string functionName, Raytracer::LightOptions options) const
+            template <typename T, typename O>
+            std::shared_ptr<T> getInstance(const std::string functionName, O options) const
             {
                 if (_handle == nullptr)
                     throw Raytracer::Exception("Impossible to find handle");
 
-                T *(*function)(LightOptions) = reinterpret_cast<T *(*)(LightOptions)>(dlsym(_handle, functionName.c_str()));
-                if (function == nullptr)
+                std::function<T *(O)> function = getSymbol<T, O>(functionName);
+                if (!function)
                     throw Raytracer::Exception(dlerror());
 
-                T *instance = (*function)(options);
-                if (instance == nullptr)
-                    throw Raytracer::Exception("Impossible to find instance");
-
-                return std::shared_ptr<T>(instance);
+                return turnFunctionIntoInstance(function, options);
             };
 
-            void closeHandle()
-            {
-                if (_handle == nullptr)
-                    return;
-                if (dlclose(_handle) != 0)
-                    throw Raytracer::Exception(dlerror());
-
-                _handle = nullptr;
-            }
+            void closeHandle();
 
         private:
             const std::string _libraryName;
