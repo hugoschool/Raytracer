@@ -17,7 +17,7 @@ Raytracer::Camera::Camera(const Math::Point3D origin, const Math::Rectangle3D sc
 Raytracer::Ray Raytracer::Camera::ray(double u, double v)
 {
     Math::Point3D point = screen.pointAt(u, v);
-    Math::Vector3D direction = point - origin;
+    Math::Vector3D direction = origin - point;
 
     return Raytracer::Ray(origin, direction);
 }

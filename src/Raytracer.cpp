@@ -10,7 +10,6 @@
 #include <cstddef>
 #include <iostream>
 #include <memory>
-#include <utility>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _sceneFile(sceneFile), _config(_sceneFile), _maxIluminance(1.0), _pixels()
@@ -27,13 +26,16 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _lights = _config.parseLights();
 }
 
-
 Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color)
 {
     color = hit.getColor();
     double multiplier = 0.0;
     for (std::shared_ptr<ILight> &light: _lights) {
         Math::Vector3D light_Vector = light->getOptions().position - hit.getHitPos();
+        Math::Vector3D invertedLightVector = hit.getHitPos() - light->getOptions().position;
+        // std::cerr << "lightPos: " << light->getOptions().position.x << " " << light->getOptions().position.y << " " << light->getOptions().position.z << std::endl;
+        // std::cerr << "hitPos: " << hit.getHitPos().x << " " << hit.getHitPos().y << " " << hit.getHitPos().z << std::endl;
+        // std::cerr << "lightVector: " << invertedLightVector.x << " " << invertedLightVector.y << " " << invertedLightVector.z << std::endl;
         Math::Vector3D normal = s->getNormal(hit.getHitPos());
         double tmpMultiplier = light_Vector.cosine(normal);
         if (tmpMultiplier <= 0)
@@ -47,9 +49,10 @@ Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s,
                 continue;
             // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
             Math::Vector3D lightToNewObject = light->getOptions().position - tmpHitInfo.getHitPos();
-            if (lightToNewObject.length() > light_Vector.length())
+            if (lightToNewObject.length() > light_Vector.length()) {
                 continue;
-            if (lightToNewObject.dot(light_Vector) < 0) // > ou < ?
+            }
+            if (light_Vector.dot(lightToNewObject) < 0) // le problème est ICI
                 continue;
             tmpMultiplier = 0.0;
             break;

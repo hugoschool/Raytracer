@@ -13,10 +13,6 @@ Raytracer::Plane::Plane(Raytracer::PrimitiveOptions options) : APrimitive(option
 
 Raytracer::HitInfo Raytracer::Plane::hits(Raytracer::Ray &ray)
 {
-    if (ray.direction.dot(this->getNormal(Math::Point3D(0,0,0))) == 0) {
-        return HitInfo(false);
-    }
-
     double k_vec = 0.0;
     // std::cerr <<"x, y, z: " << this->_options.center.x << " " << this->_options.center.y << " " << this->_options.center.z << std::endl;
     if (_options.axis == PlaneAxis::X && ray.direction.x != 0) {
@@ -38,11 +34,11 @@ Raytracer::Math::Vector3D Raytracer::Plane::getNormal(const Math::Point3D point)
 {
     Math::Vector3D normal;
     if (this->_options.axis == PlaneAxis::X)
-        normal = Math::Vector3D(1, 0, 0);
+        normal = Math::Vector3D(-1, 0, 0);
     else if (this->_options.axis == PlaneAxis::Y)
-        normal = Math::Vector3D(0, 1, 0);
+        normal = Math::Vector3D(0, -1, 0);
     else if (this->_options.axis == PlaneAxis::Z)
-        normal = Math::Vector3D(0, 0, 1);
+        normal = Math::Vector3D(0, 0, -1);
     else
         normal = Math::Vector3D(0,0,0);
     return normal;
