@@ -9,7 +9,8 @@
 
 Raytracer::Config::Config(const std::string fileName) : _fileName(fileName), _config(), _factory()
 {
-    _config.readFile(_fileName);
+    // Using as c_str for compilation on previous libconfig++
+    _config.readFile(_fileName.c_str());
     _root = _config.getRoot();
 }
 
