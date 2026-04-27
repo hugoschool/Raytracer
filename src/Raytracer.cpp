@@ -47,14 +47,13 @@ void Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hi
             Math::Vector3D lightToNewObject = light->getOptions().position - tmpHitInfo.getHitPos();
             if (lightToNewObject.length() > light_Vector.length())
                 continue;
-            if (lightToNewObject.dot(light_Vector) > 0)
+            if (lightToNewObject.dot(light_Vector) > 0) // > ou < ?
                 continue;
             tmpMultiplier = 0.0;
             break;
         }
         multiplier += tmpMultiplier;
     }
-
     multiplier = std::min(1.0, multiplier);
     color = color * multiplier;
 }

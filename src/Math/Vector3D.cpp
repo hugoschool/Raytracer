@@ -124,6 +124,6 @@ Raytracer::Math::Vector3D Raytracer::Math::Vector3D::rotateZ(double degree) cons
 double Raytracer::Math::Vector3D::cosine(Vector3D &normal)
 {
     double value = this->dot(normal) / (this->length() * normal.length());
-    value = std::max(0.0, value);
+    // value = std::max(0.0, value); pas nécéssairement utile
     return value;
 }

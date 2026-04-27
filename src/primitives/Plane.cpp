@@ -20,14 +20,18 @@ Raytracer::HitInfo Raytracer::Plane::hits(Raytracer::Ray &ray)
     double k_vec = 0.0;
     // std::cerr <<"x, y, z: " << this->_options.center.x << " " << this->_options.center.y << " " << this->_options.center.z << std::endl;
     if (this->_options.center.x != 0 && ray.direction.x != 0)
-        k_vec = this->_options.center.x / ray.direction.x;
+        k_vec = (this->_options.center.x - ray.origin.x) / ray.direction.x;
     else if (this->_options.center.y != 0 && ray.direction.y != 0)
-        k_vec = this->_options.center.y / ray.direction.y;
+        k_vec = (this->_options.center.y - ray.origin.y) / ray.direction.y;
     else if (this->_options.center.z != 0 && ray.direction.z != 0)
-        k_vec = this->_options.center.z / ray.direction.z;
+        k_vec = (this->_options.center.z - ray.origin.z) / ray.direction.z;
     else 
         return HitInfo(false);
-    Math::Point3D coincide =  ray.origin + (ray.direction * k_vec);
+    if (k_vec < 0)
+        return HitInfo(false);
+    Math::Point3D coincide = ray.origin + (ray.direction * k_vec);
+    // std::cerr << "got coincide x, y, z: " << coincide.x << " " << coincide.y << " " << coincide.z << std::endl;
+
     return HitInfo(true, coincide, _options.color);
 }
 
