@@ -7,11 +7,13 @@
 #include "lights/LightOptions.hpp"
 #include "primitives/IPrimitive.hpp"
 #include <algorithm>
+#include <cstddef>
 #include <iostream>
 #include <memory>
+#include <utility>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(_sceneFile)
+    _sceneFile(sceneFile), _config(_sceneFile), _maxIluminance(1.0), _pixels()
 {
     _camera = _config.parseCamera();
     _primitives = _config.parsePrimitives();
@@ -26,7 +28,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
 }
 
 
-void Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color)
+Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color)
 {
     color = hit.getColor();
     double multiplier = 0.0;
@@ -37,25 +39,29 @@ void Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hi
         if (tmpMultiplier <= 0)
             continue;
         Ray lightToHit(light->getOptions().position, light_Vector);
-        for (std::shared_ptr<IPrimitive> &tmpSphere: _primitives) {
-            if (tmpSphere.get() == s.get())
+        for (std::shared_ptr<IPrimitive> &tmpPrimitive: _primitives) {
+            if (tmpPrimitive.get() == s.get())
                 continue;
-            HitInfo tmpHitInfo = tmpSphere->hits(lightToHit);
+            HitInfo tmpHitInfo = tmpPrimitive->hits(lightToHit);
             if (!tmpHitInfo.hasHit())
                 continue;
             // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
             Math::Vector3D lightToNewObject = light->getOptions().position - tmpHitInfo.getHitPos();
             if (lightToNewObject.length() > light_Vector.length())
                 continue;
-            if (lightToNewObject.dot(light_Vector) > 0) // > ou < ?
+            if (lightToNewObject.dot(light_Vector) < 0) // > ou < ?
                 continue;
             tmpMultiplier = 0.0;
             break;
         }
         multiplier += tmpMultiplier;
     }
-    multiplier = std::min(1.0, multiplier);
-    color = color * multiplier;
+    if (this->_maxIluminance < multiplier)
+        this->_maxIluminance = multiplier;
+    return Pixel {
+        .color = color,
+        .multiplier = multiplier,
+    };
 }
 
 void Raytracer::Raytracer::exportPPM()
@@ -70,26 +76,30 @@ void Raytracer::Raytracer::exportPPM()
             double v = static_cast<double>(y) / _camera.height;
             Ray r = _camera.ray(u, v);
 
-            bool hasHit = false;
             Color color;
             double currLen = 0;
+            bool hasHit = false;
             for (std::shared_ptr<IPrimitive> &ptr : _primitives) {
                 HitInfo hit = ptr->hits(r);
                 if (hit.hasHit()) {
                     if (currLen != 0 && currLen < (hit.getHitPos() - r.origin).length())
                         continue;
-                    this->handleHit(ptr, hit, color);
+                    if (hasHit == true)
+                        _pixels.pop_back();
+                    _pixels.push_back(this->handleHit(ptr, hit, color));
                     currLen = (hit.getHitPos() - r.origin).length();
                     hasHit = true;
                 }
             }
-
-            if (hasHit) {
-                std::cout   << static_cast<unsigned int>(color.r) << " "
-                            << static_cast<unsigned int>(color.g) << " "
-                            << static_cast<unsigned int>(color.b) << std::endl;
-            } else
-                std::cout << "0 0 0" << std::endl;
+            if (hasHit == false)
+                _pixels.push_back(Pixel{.color = Color(0,0,0), .multiplier = 0});
         }
+    }
+    for (auto &it: _pixels) {
+        it.multiplier /= this->_maxIluminance;
+        it.color = it.color * it.multiplier;
+        std::cout   << static_cast<unsigned int>(it.color.r) << " "
+            << static_cast<unsigned int>(it.color.g) << " "
+            << static_cast<unsigned int>(it.color.b) << std::endl;
     }
 }
