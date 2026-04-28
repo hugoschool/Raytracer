@@ -12,7 +12,7 @@ Raytracer::Math::Point3D Raytracer::Math::Point3D::operator+(const Point3D &poin
 
 Raytracer::Math::Vector3D Raytracer::Math::Point3D::operator-(const Point3D &point) const
 {
-    return Raytracer::Math::Vector3D(x - point.x, y - point.y, z - point.z);
+    return Raytracer::Math::Vector3D(point.x - x, point.y - y, point.z - z);
 }
 
 Raytracer::Math::Point3D Raytracer::Math::Point3D::operator+(const Vector3D &vec) const

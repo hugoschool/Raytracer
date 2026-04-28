@@ -4,6 +4,7 @@
 #include "Exception.hpp"
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
+#include "primitives/PrimitiveOptions.hpp"
 #include <libconfig.h++>
 #include <memory>
 
@@ -80,18 +81,36 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     long long y = 0;
     long long z = 0;
     long long r = 0;
+    std::string axisStr;
+    long long position;
 
     setting.lookupValue("x", x);
     setting.lookupValue("y", y);
     setting.lookupValue("z", z);
     setting.lookupValue("r", r);
+    setting.lookupValue("axis", axisStr);
+    setting.lookupValue("position", position);
+
+    PlaneAxis axis = PlaneAxis::None;
+    if (!axisStr.empty()) {
+        if (axisStr == "X" || axisStr == "x")
+            axis = PlaneAxis::X;
+        else if (axisStr == "Y" || axisStr == "y")
+            axis = PlaneAxis::Y;
+        else if (axisStr == "Z" || axisStr == "z")
+            axis = PlaneAxis::Z;
+        else
+            throw Raytracer::Exception("Wrong plane direction");
+    }
 
     Color color = parseColor(setting);
 
     return {
         .center = Math::Point3D(x, y, z),
         .color = color,
-        .radius = static_cast<double>(r)
+        .radius = static_cast<double>(r),
+        .axis = axis,
+        .position = position,
     };
 }
 

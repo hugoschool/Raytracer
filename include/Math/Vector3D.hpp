@@ -16,8 +16,8 @@ namespace Raytracer {
                 double y;
                 double z;
 
-                double length();
-                double dot(Vector3D &vector);
+                double length() const;
+                double dot(const Vector3D &vector) const;
 
 
 

@@ -7,15 +7,16 @@
 #include "lights/LightOptions.hpp"
 #include "primitives/IPrimitive.hpp"
 #include <algorithm>
+#include <cstddef>
 #include <iostream>
 #include <memory>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(_sceneFile)
+    _sceneFile(sceneFile), _config(_sceneFile), _maxilluminance(1.0)
 {
     _camera = _config.parseCamera();
     _primitives = _config.parsePrimitives();
-
+    _pixels.reserve(_camera.width * _camera.height);
     // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
     std::sort(_primitives.begin(), _primitives.end(), [](std::shared_ptr<IPrimitive> &a, std::shared_ptr<IPrimitive> &b)
     {
@@ -25,8 +26,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _lights = _config.parseLights();
 }
 
-
-void Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color)
+Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color)
 {
     color = hit.getColor();
     double multiplier = 0.0;
@@ -37,26 +37,30 @@ void Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hi
         if (tmpMultiplier <= 0)
             continue;
         Ray lightToHit(light->getOptions().position, light_Vector);
-        for (std::shared_ptr<IPrimitive> &tmpSphere: _primitives) {
-            if (tmpSphere.get() == s.get())
+        for (std::shared_ptr<IPrimitive> &tmpPrimitive: _primitives) {
+            if (tmpPrimitive.get() == s.get())
                 continue;
-            HitInfo tmpHitInfo = tmpSphere->hits(lightToHit);
+            HitInfo tmpHitInfo = tmpPrimitive->hits(lightToHit);
             if (!tmpHitInfo.hasHit())
                 continue;
             // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
             Math::Vector3D lightToNewObject = light->getOptions().position - tmpHitInfo.getHitPos();
-            if (lightToNewObject.length() > light_Vector.length())
+            if (lightToNewObject.length() > light_Vector.length()) {
                 continue;
-            if (lightToNewObject.dot(light_Vector) > 0)
+            }
+            if (light_Vector.dot(lightToNewObject) < 0) // On calcule la norme pour savoir si les vecteurs sont opposés
                 continue;
             tmpMultiplier = 0.0;
             break;
         }
-        multiplier = std::max(multiplier, tmpMultiplier);
+        multiplier += tmpMultiplier;
     }
-
-    multiplier = std::min(1.0, multiplier);
-    color = color * multiplier;
+    if (this->_maxilluminance < multiplier)
+        this->_maxilluminance = multiplier;
+    return Pixel {
+        .color = color,
+        .multiplier = multiplier,
+    };
 }
 
 void Raytracer::Raytracer::exportPPM()
@@ -71,23 +75,30 @@ void Raytracer::Raytracer::exportPPM()
             double v = static_cast<double>(y) / _camera.height;
             Ray r = _camera.ray(u, v);
 
-            bool hasHit = false;
             Color color;
+            double currLen = 0;
+            bool hasHit = false;
             for (std::shared_ptr<IPrimitive> &ptr : _primitives) {
                 HitInfo hit = ptr->hits(r);
                 if (hit.hasHit()) {
-                    this->handleHit(ptr, hit, color);
+                    if (currLen != 0 && currLen < (hit.getHitPos() - r.origin).length())
+                        continue;
+                    if (hasHit == true)
+                        _pixels.pop_back();
+                    _pixels.push_back(this->handleHit(ptr, hit, color));
+                    currLen = (hit.getHitPos() - r.origin).length();
                     hasHit = true;
-                    break;
                 }
             }
-
-            if (hasHit) {
-                std::cout   << static_cast<unsigned int>(color.r) << " "
-                            << static_cast<unsigned int>(color.g) << " "
-                            << static_cast<unsigned int>(color.b) << std::endl;
-            } else
-                std::cout << "0 0 0" << std::endl;
+            if (hasHit == false)
+                _pixels.push_back(Pixel{.color = Color(0,0,0), .multiplier = 0});
         }
+    }
+    for (auto &it: _pixels) {
+        it.multiplier /= this->_maxilluminance;
+        it.color = it.color * it.multiplier;
+        std::cout << static_cast<unsigned int>(it.color.r) << " " 
+        << static_cast<unsigned int>(it.color.g) << " "
+        << static_cast<unsigned int>(it.color.b) << std::endl;
     }
 }

@@ -1,4 +1,3 @@
-#include "Color.hpp"
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "primitives/Sphere.hpp"
@@ -32,7 +31,7 @@ Raytracer::Sphere::Sphere(Raytracer::PrimitiveOptions options) : APrimitive(opti
 //
 Raytracer::HitInfo Raytracer::Sphere::hits(Raytracer::Ray &ray)
 {
-    Math::Vector3D centerOffset = _options.center - ray.origin;
+    Math::Vector3D centerOffset = ray.origin - _options.center;
     double a = ray.direction.dot(ray.direction);
     double b = 2 * ray.direction.x * centerOffset.x + 2 * ray.direction.y * centerOffset.y + 2 * ray.direction.z * centerOffset.z;
     double c = centerOffset.dot(centerOffset) - std::pow(_options.radius, 2);
@@ -55,7 +54,7 @@ Raytracer::HitInfo Raytracer::Sphere::hits(Raytracer::Ray &ray)
 
 Raytracer::Math::Vector3D Raytracer::Sphere::getNormal(const Math::Point3D point) const
 {
-    return point - _options.center;
+    return point - this->_options.center;
 }
 
 extern "C" Raytracer::IPrimitive *primitiveEntrypoint(Raytracer::PrimitiveOptions options)

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/Point3D.hpp"
-#include "Color.hpp"
 #include "Math/Point3D.hpp"
 #include "Ray.hpp"
 #include "HitInfo.hpp"

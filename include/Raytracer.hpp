@@ -10,6 +10,10 @@
 #include <vector>
 
 namespace Raytracer {
+    struct Pixel {
+        Color color;
+        double multiplier;
+    };
     class Raytracer {
         public:
             Raytracer() = delete;
@@ -20,10 +24,10 @@ namespace Raytracer {
         private:
             const std::string _sceneFile;
             Config _config;
-
+            double _maxilluminance;
             Camera _camera;
-            void handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color);
-
+            Pixel handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color);
+            std::vector<Pixel> _pixels;
             std::vector<std::shared_ptr<IPrimitive>> _primitives;
             std::vector<std::shared_ptr<ILight>> _lights;
     };
