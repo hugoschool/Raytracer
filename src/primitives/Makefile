@@ -27,7 +27,7 @@ clean:
 
 fclean:	clean
 	$(RM) $(SPHERE_BIN)
-	$(RM) $(PLANE_OBJ)
+	$(RM) $(PLANE_BIN)
 
 re:	fclean all
 
