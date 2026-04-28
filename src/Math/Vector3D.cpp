@@ -130,3 +130,8 @@ double Raytracer::Math::Vector3D::cosine(Vector3D &normal)
     double value = this->dot(normal) / (this->length() * normal.length());
     return value;
 }
+
+Raytracer::Math::Vector3D Raytracer::Math::Vector3D::cross_product(Raytracer::Math::Vector3D &vector)
+{
+    return Math::Vector3D(this->y * vector.z - this->z * vector.y ,this->z * vector.x - this->x * vector.z, this->x * vector.y - this->y * vector.x);
+}

@@ -18,6 +18,7 @@ namespace Raytracer {
 
                 double length() const;
                 double dot(const Vector3D &vector) const;
+                Raytracer::Math::Vector3D cross_product(Raytracer::Math::Vector3D &vector);
 
 
 
