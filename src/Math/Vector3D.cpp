@@ -51,6 +51,15 @@ Raytracer::Math::Vector3D Raytracer::Math::Vector3D::operator/(const Raytracer::
     return Raytracer::Math::Vector3D(x / vector.x, y / vector.y, z / vector.z);
 }
 
+Raytracer::Math::Vector3D Raytracer::Math::Vector3D::operator/(const double &val) const
+{
+    if (val == 0) {
+        std::cerr << "Floating point exception" << std::endl;
+        return Raytracer::Math::Vector3D(*this);
+    }
+    return Raytracer::Math::Vector3D(x / val, y / val, z / val);
+}
+
 void Raytracer::Math::Vector3D::operator+=(const Vector3D &vector)
 {
     this->x += vector.x;
