@@ -12,11 +12,11 @@
 #include <memory>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(_sceneFile), _maxilluminance(1.0), _pixels()
+    _sceneFile(sceneFile), _config(_sceneFile), _maxilluminance(1.0)
 {
     _camera = _config.parseCamera();
     _primitives = _config.parsePrimitives();
-
+    _pixels.reserve(_camera.width * _camera.height);
     // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
     std::sort(_primitives.begin(), _primitives.end(), [](std::shared_ptr<IPrimitive> &a, std::shared_ptr<IPrimitive> &b)
     {
