@@ -2,6 +2,8 @@
 #include "Camera.hpp"
 #include "Color.hpp"
 #include "Exception.hpp"
+#include "Math/Point3D.hpp"
+#include "Math/Vector3D.hpp"
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
@@ -90,27 +92,27 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     setting.lookupValue("r", r);
     setting.lookupValue("axis", axisStr);
     setting.lookupValue("position", position);
+    Math::Vector3D normal;
+    Math::Vector3D center = Math::Vector3D(x,y,z);
 
-    PlaneAxis axis = PlaneAxis::None;
     if (!axisStr.empty()) {
         if (axisStr == "X" || axisStr == "x")
-            axis = PlaneAxis::X;
+            normal = Math::Vector3D(-1,0,0);
         else if (axisStr == "Y" || axisStr == "y")
-            axis = PlaneAxis::Y;
+            normal = Math::Vector3D(0,-1,0);
         else if (axisStr == "Z" || axisStr == "z")
-            axis = PlaneAxis::Z;
+            normal = Math::Vector3D(0,0,-1);
         else
             throw Raytracer::Exception("Wrong plane direction");
+        center = normal * position;
     }
-
     Color color = parseColor(setting);
 
     return {
-        .center = Math::Point3D(x, y, z),
+        .center = Math::Point3D(center.x, center.y, center.z),
         .color = color,
         .radius = static_cast<double>(r),
-        .axis = axis,
-        .position = position,
+        .normal = normal,
     };
 }
 

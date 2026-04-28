@@ -12,19 +12,11 @@ Raytracer::Plane::Plane(Raytracer::PrimitiveOptions options) : APrimitive(option
 
 Raytracer::HitInfo Raytracer::Plane::hits(Raytracer::Ray &ray)
 {
-    if (ray.direction.dot(this->getNormal(Math::Point3D(0,0,0))) == 0) {
-        return HitInfo(false);
-    }
-
     double k_vec = 0.0;
-    if (_options.axis == PlaneAxis::X && ray.direction.x != 0) {
-        k_vec = (this->_options.position - ray.origin.x) / ray.direction.x;
-    } else if (_options.axis == PlaneAxis::Y && ray.direction.y != 0) {
-        k_vec = (this->_options.position - ray.origin.y) / ray.direction.y;
-    } else if (_options.axis == PlaneAxis::Z && ray.direction.z != 0) {
-        k_vec = (this->_options.position - ray.origin.z) / ray.direction.z;
-    } else
-        return HitInfo(false);
+    double dot = ray.direction.dot(this->_options.normal);
+    if (dot != 0) {
+        k_vec = (_options.center - ray.origin).dot(_options.normal) / dot;
+    }
     if (k_vec <= 0)
         return HitInfo(false);
     Math::Point3D coincide = ray.origin + (ray.direction * k_vec);
@@ -33,22 +25,7 @@ Raytracer::HitInfo Raytracer::Plane::hits(Raytracer::Ray &ray)
 
 Raytracer::Math::Vector3D Raytracer::Plane::getNormal(const Math::Point3D) const
 {
-    Math::Vector3D normal;
-
-    switch (this->_options.axis) {
-        case Raytracer::PlaneAxis::X:
-            normal = Math::Vector3D(-1, 0, 0);
-            break;
-        case Raytracer::PlaneAxis::Y:
-            normal = Math::Vector3D(0, -1, 0);
-            break;
-        case Raytracer::PlaneAxis::Z:
-            normal = Math::Vector3D(0, 0, -1);
-            break;
-        default:
-            normal = Math::Vector3D(0,0,0);
-    }
-    return normal;
+    return _options.normal;
 }
 
 extern "C" Raytracer::IPrimitive *primitiveEntrypoint(Raytracer::PrimitiveOptions options)
