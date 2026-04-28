@@ -12,7 +12,7 @@
 #include <memory>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(_sceneFile), _maxIluminance(1.0), _pixels()
+    _sceneFile(sceneFile), _config(_sceneFile), _maxilluminance(1.0), _pixels()
 {
     _camera = _config.parseCamera();
     _primitives = _config.parsePrimitives();
@@ -55,8 +55,8 @@ Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s,
         }
         multiplier += tmpMultiplier;
     }
-    if (this->_maxIluminance < multiplier)
-        this->_maxIluminance = multiplier;
+    if (this->_maxilluminance < multiplier)
+        this->_maxilluminance = multiplier;
     return Pixel {
         .color = color,
         .multiplier = multiplier,
@@ -95,7 +95,7 @@ void Raytracer::Raytracer::exportPPM()
         }
     }
     for (auto &it: _pixels) {
-        it.multiplier /= this->_maxIluminance;
+        it.multiplier /= this->_maxilluminance;
         it.color = it.color * it.multiplier;
         std::cout << static_cast<unsigned int>(it.color.r) << " " 
         << static_cast<unsigned int>(it.color.g) << " "

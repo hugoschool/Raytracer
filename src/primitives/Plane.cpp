@@ -34,14 +34,20 @@ Raytracer::HitInfo Raytracer::Plane::hits(Raytracer::Ray &ray)
 Raytracer::Math::Vector3D Raytracer::Plane::getNormal(const Math::Point3D) const
 {
     Math::Vector3D normal;
-    if (this->_options.axis == PlaneAxis::X)
-        normal = Math::Vector3D(-1, 0, 0);
-    else if (this->_options.axis == PlaneAxis::Y)
-        normal = Math::Vector3D(0, -1, 0);
-    else if (this->_options.axis == PlaneAxis::Z)
-        normal = Math::Vector3D(0, 0, -1);
-    else
-        normal = Math::Vector3D(0,0,0);
+
+    switch (this->_options.axis) {
+        case Raytracer::PlaneAxis::X:
+            normal = Math::Vector3D(-1, 0, 0);
+            break;
+        case Raytracer::PlaneAxis::Y:
+            normal = Math::Vector3D(0, -1, 0);
+            break;
+        case Raytracer::PlaneAxis::Z:
+            normal = Math::Vector3D(0, 0, -1);
+            break;
+        default:
+            normal = Math::Vector3D(0,0,0);
+    }
     return normal;
 }
 

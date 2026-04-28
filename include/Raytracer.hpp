@@ -24,7 +24,7 @@ namespace Raytracer {
         private:
             const std::string _sceneFile;
             Config _config;
-            double _maxIluminance;
+            double _maxilluminance;
             Camera _camera;
             Pixel handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color);
             std::vector<Pixel> _pixels;
