@@ -39,6 +39,7 @@ namespace Raytracer {
                 void operator-=(const Vector3D &vector);
                 void operator*=(const Vector3D &vector);
                 void operator/=(const Vector3D &vector);
+                bool operator==(const Vector3D &vector);
                 Raytracer::Math::Vector3D operator=(const Raytracer::Math::Matrix3x1 &matrix);
         };
     }

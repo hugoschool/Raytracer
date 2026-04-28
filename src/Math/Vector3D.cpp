@@ -100,6 +100,11 @@ Raytracer::Math::Vector3D Raytracer::Math::Vector3D::operator=(const Matrix3x1 &
     return *this;
 }
 
+bool Raytracer::Math::Vector3D::operator==(const Vector3D &vector)
+{
+    return (this->x == vector.x && this->y == vector.y && this->z == vector.z);
+}
+
 // https://math.libretexts.org/Bookshelves/Applied_Mathematics/Mathematics_for_Game_Developers_(Burzynski)/04%3A_Matrices/4.06%3A_Rotation_Matrices_in_3-Dimensions
 // https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
 Raytracer::Math::Vector3D Raytracer::Math::Vector3D::rotateX(double degree) const
