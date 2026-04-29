@@ -5,6 +5,8 @@
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "lights/ILight.hpp"
+#include "materials/IMaterial.hpp"
+#include "materials/MaterialOptions.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
 #include <exception>
@@ -107,6 +109,27 @@ std::vector<Raytracer::Math::Point3D> Raytracer::Config::parseVertices(const lib
     return vertices;
 }
 
+Raytracer::MaterialOptions Raytracer::Config::parseMaterialOptions(const libconfig::Setting &) const
+{
+    return {};
+}
+
+std::shared_ptr<Raytracer::IMaterial> Raytracer::Config::parseMaterial(const libconfig::Setting &initialSetting) const
+{
+    if (!initialSetting.exists("material")) {
+        // If no option specified, use flat color material.
+        MaterialOptions options;
+        return _factory.createMaterial("flatcolor", options);
+    }
+
+    const libconfig::Setting &setting = initialSetting["material"];
+    std::string name;
+
+    setting.lookupValue("name", name);
+
+    return _factory.createMaterial(name, {});
+}
+
 Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libconfig::Setting &setting) const
 {
     long long x = 0;
@@ -144,6 +167,7 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     return {
         .center = Math::Point3D(center.x, center.y, center.z),
         .color = color,
+        .material = parseMaterial(setting),
         .radius = static_cast<double>(r),
         .normal = normal,
         .vertices = vertices,

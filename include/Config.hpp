@@ -34,5 +34,7 @@ namespace Raytracer {
             PrimitiveOptions parsePrimitiveOptions(const libconfig::Setting &setting) const;
             LightOptions parseLightOptions(const libconfig::Setting &setting) const;
             std::vector<Math::Point3D> parseVertices(const libconfig::Setting &setting) const;
+            MaterialOptions parseMaterialOptions(const libconfig::Setting &setting) const;
+            std::shared_ptr<IMaterial> parseMaterial(const libconfig::Setting &setting) const;
     };
 }
