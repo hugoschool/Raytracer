@@ -54,13 +54,16 @@ BINARY	:=	raytracer
 
 all:	plugins $(BINARY)
 
-plugins: primitives lights
+plugins: primitives lights materials
 
 primitives:
 	$(MAKE) -C src/primitives
 
 lights:
 	$(MAKE) -C src/lights
+
+materials:
+	$(MAKE) -C src/materials
 
 $(BINARY):	$(OBJ)
 	$(CXX) -o $(BINARY) $(OBJ) $(LDFLAGS) $(LDLIBS)
