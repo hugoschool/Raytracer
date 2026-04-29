@@ -3,6 +3,8 @@
 #include "Color.hpp"
 #include "Exception.hpp"
 #include "lights/ILight.hpp"
+#include "materials/IMaterial.hpp"
+#include "materials/MaterialOptions.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
 #include <libconfig.h++>
@@ -75,6 +77,27 @@ Raytracer::Color Raytracer::Config::parseColor(const libconfig::Setting &setting
     };
 }
 
+Raytracer::MaterialOptions Raytracer::Config::parseMaterialOptions(const libconfig::Setting &) const
+{
+    return {};
+}
+
+std::shared_ptr<Raytracer::IMaterial> Raytracer::Config::parseMaterial(const libconfig::Setting &initialSetting) const
+{
+    if (!initialSetting.exists("material")) {
+        // If no option specified, use flat color material.
+        MaterialOptions options;
+        return _factory.createMaterial("flatcolor", options);
+    }
+
+    const libconfig::Setting &setting = initialSetting["material"];
+    std::string name;
+
+    setting.lookupValue("name", name);
+
+    return _factory.createMaterial(name, {});
+}
+
 Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libconfig::Setting &setting) const
 {
     long long x = 0;
@@ -108,6 +131,7 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     return {
         .center = Math::Point3D(x, y, z),
         .color = color,
+        .material = parseMaterial(setting),
         .radius = static_cast<double>(r),
         .axis = axis,
         .position = position,

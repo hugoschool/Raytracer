@@ -2,7 +2,8 @@
 
 #include "Math/Point3D.hpp"
 #include "Color.hpp"
-#include <string>
+#include "materials/IMaterial.hpp"
+#include <memory>
 
 namespace Raytracer {
     enum class PlaneAxis {
@@ -15,6 +16,7 @@ namespace Raytracer {
         // Globally used
         const Math::Point3D center;
         Color color;
+        std::shared_ptr<IMaterial> material;
 
         // Sphere
         double radius;
