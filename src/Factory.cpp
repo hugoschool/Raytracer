@@ -1,5 +1,6 @@
 #include "Factory.hpp"
 #include "Utils.hpp"
+#include "materials/MaterialOptions.hpp"
 #include "primitives/PrimitiveOptions.hpp"
 #include <algorithm>
 #include <filesystem>
@@ -43,6 +44,7 @@ void Raytracer::Factory::registerAllPlugins()
 
         _loaders.insert({libraryPath, loader});
 
+        // Could this be simplified?
         if (loader->symbolExists(std::string(Utils::primitiveEntrypoint))) {
             _primitives.insert({
                 config,
@@ -52,6 +54,11 @@ void Raytracer::Factory::registerAllPlugins()
             _lights.insert({
                 config,
                 loader->getSymbol<ILight, LightOptions>(std::string(Utils::lightEntrypoint))
+            });
+        } else if (loader->symbolExists(std::string(Utils::materialEntrypoint))) {
+            _materials.insert({
+                config,
+                loader->getSymbol<IMaterial, MaterialOptions>(std::string(Utils::materialEntrypoint))
             });
         }
     }
@@ -76,6 +83,20 @@ std::shared_ptr<Raytracer::ILight> Raytracer::Factory::createLight(const std::st
     try {
         std::function function = _lights.at({
             .category = std::string("light"),
+            .name = name
+        });
+
+        return DLLoader::turnFunctionIntoInstance(function, options);
+    } catch (const std::exception &e) {
+        throw Exception("Couldn't find " + name);
+    }
+}
+
+std::shared_ptr<Raytracer::IMaterial> Raytracer::Factory::createMaterial(const std::string name, MaterialOptions options) const
+{
+    try {
+        std::function function = _materials.at({
+            .category = std::string("material"),
             .name = name
         });
 
