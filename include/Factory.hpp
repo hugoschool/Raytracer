@@ -17,8 +17,8 @@ namespace Raytracer {
             ~Factory() = default;
 
             void registerAllPlugins();
-            std::shared_ptr<IPrimitive> createPrimitive(const std::string name, PrimitiveOptions options);
-            std::shared_ptr<ILight> createLight(const std::string name, LightOptions options);
+            std::shared_ptr<IPrimitive> createPrimitive(const std::string name, PrimitiveOptions options) const;
+            std::shared_ptr<ILight> createLight(const std::string name, LightOptions options) const;
 
         private:
             struct PluginConfig {

@@ -57,7 +57,7 @@ void Raytracer::Factory::registerAllPlugins()
     }
 }
 
-std::shared_ptr<Raytracer::IPrimitive> Raytracer::Factory::createPrimitive(const std::string name, PrimitiveOptions options)
+std::shared_ptr<Raytracer::IPrimitive> Raytracer::Factory::createPrimitive(const std::string name, PrimitiveOptions options) const
 {
     try {
         std::function function = _primitives.at({
@@ -71,7 +71,7 @@ std::shared_ptr<Raytracer::IPrimitive> Raytracer::Factory::createPrimitive(const
     }
 }
 
-std::shared_ptr<Raytracer::ILight> Raytracer::Factory::createLight(const std::string name, LightOptions options)
+std::shared_ptr<Raytracer::ILight> Raytracer::Factory::createLight(const std::string name, LightOptions options) const
 {
     try {
         std::function function = _lights.at({
