@@ -2,9 +2,14 @@
 #include "Camera.hpp"
 #include "Color.hpp"
 #include "Exception.hpp"
+#include "Math/Point3D.hpp"
+#include "Math/Vector3D.hpp"
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
+#include <array>
+#include <exception>
+#include <iostream>
 #include <libconfig.h++>
 #include <memory>
 
@@ -75,6 +80,23 @@ Raytracer::Color Raytracer::Config::parseColor(const libconfig::Setting &setting
     };
 }
 
+std::array<std::array<long long, 3>, 3> Raytracer::Config::parseTriangle(const libconfig::Setting &setting) const
+{
+    std::array<std::string, 3> vertices_name = {"a", "b", "c"};
+    std::array<std::array<long long, 3>, 3> vertices;
+    for (size_t i = 0; i < 3; i++) {
+        std::array<long long, 3> tmpArray;
+        if (!(
+            setting[vertices_name[i]].lookupValue("x", tmpArray[0]) &&
+            setting[vertices_name[i]].lookupValue("y", tmpArray[1]) &&
+            setting[vertices_name[i]].lookupValue("z", tmpArray[2])
+        ))
+            return vertices;
+        vertices[i] = tmpArray;
+    }
+    return vertices;
+}
+
 Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libconfig::Setting &setting) const
 {
     long long x = 0;
@@ -90,27 +112,37 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     setting.lookupValue("r", r);
     setting.lookupValue("axis", axisStr);
     setting.lookupValue("position", position);
+    Math::Vector3D normal;
+    Math::Vector3D center = Math::Vector3D(x,y,z);
 
-    PlaneAxis axis = PlaneAxis::None;
     if (!axisStr.empty()) {
         if (axisStr == "X" || axisStr == "x")
-            axis = PlaneAxis::X;
+            normal = Math::Vector3D(-1,0,0);
         else if (axisStr == "Y" || axisStr == "y")
-            axis = PlaneAxis::Y;
+            normal = Math::Vector3D(0,-1,0);
         else if (axisStr == "Z" || axisStr == "z")
-            axis = PlaneAxis::Z;
+            normal = Math::Vector3D(0,0,-1);
         else
             throw Raytracer::Exception("Wrong plane direction");
+        center = normal * position;
     }
-
     Color color = parseColor(setting);
-
+    std::array<std::array<long long, 3>, 3> triangle;
+    try {
+        triangle = this->parseTriangle(setting);
+    } catch(std::exception &e) {
+        triangle[0] = {0,0,0};
+        triangle[1] = {0,0,0};
+        triangle[2] = {0,0,0};
+    }
     return {
-        .center = Math::Point3D(x, y, z),
+        .center = Math::Point3D(center.x, center.y, center.z),
         .color = color,
         .radius = static_cast<double>(r),
-        .axis = axis,
-        .position = position,
+        .normal = normal,
+        .a = Math::Point3D(triangle[0][0], triangle[0][1], triangle[0][2]),
+        .b = Math::Point3D(triangle[1][0], triangle[1][1], triangle[1][2]),
+        .c = Math::Point3D(triangle[2][0], triangle[2][1], triangle[2][2]),
     };
 }
 
@@ -150,6 +182,7 @@ std::vector<std::shared_ptr<Raytracer::IPrimitive>> Raytracer::Config::parsePrim
         }
         return primitives;
     } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
         throw Raytracer::Exception("Wrong primitives configuration");
     }
 }

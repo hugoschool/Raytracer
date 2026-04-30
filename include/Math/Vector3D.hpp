@@ -18,6 +18,7 @@ namespace Raytracer {
 
                 double length() const;
                 double dot(const Vector3D &vector) const;
+                Raytracer::Math::Vector3D cross_product(Raytracer::Math::Vector3D &vector);
 
 
 
@@ -31,6 +32,7 @@ namespace Raytracer {
                 Vector3D operator-(const Vector3D &vector) const;
                 Vector3D operator*(const Vector3D &vector) const;
                 Vector3D operator/(const Vector3D &vector) const;
+                Vector3D operator/(const double &val) const;
 
                 Vector3D operator*(const double nb) const;
                 void operator*=(const double nb);
@@ -39,7 +41,8 @@ namespace Raytracer {
                 void operator-=(const Vector3D &vector);
                 void operator*=(const Vector3D &vector);
                 void operator/=(const Vector3D &vector);
-                Raytracer::Math::Vector3D operator=(const Raytracer::Math::Matrix3x1 &matrix);
+                bool operator==(const Vector3D &vector);
+                Vector3D operator=(const Raytracer::Math::Matrix3x1 &matrix);
         };
     }
 }
