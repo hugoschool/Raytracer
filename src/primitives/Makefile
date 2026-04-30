@@ -13,21 +13,31 @@ PLANE_SRC	:=	$(COMMON_SRC) \
 PLANE_OBJ	:=	$(PLANE_SRC:.cpp=.o)
 PLANE_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_plane.so
 
+TRIANGLE_SRC	:=	$(COMMON_SRC) \
+				Triangle.cpp
+TRIANGLE_OBJ	:=	$(TRIANGLE_SRC:.cpp=.o)
+TRIANGLE_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_triangle.so
+
 include $(BASE_DIR)/common.mk
 
-all:	$(SPHERE_BIN) $(PLANE_BIN)
+all:	$(SPHERE_BIN) $(PLANE_BIN) $(TRIANGLE_BIN)
 
 $(SPHERE_BIN):	$(SPHERE_OBJ)
 
 $(PLANE_BIN): $(PLANE_OBJ)
 
+$(TRIANGLE_BIN): $(TRIANGLE_OBJ)
+
 clean:
 	$(RM) $(SPHERE_OBJ)
 	$(RM) $(PLANE_OBJ)
+	$(RM) $(TRIANGLE_OBJ)
+
 
 fclean:	clean
 	$(RM) $(SPHERE_BIN)
 	$(RM) $(PLANE_BIN)
+	$(RM) $(TRIANGLE_BIN)
 
 re:	fclean all
 
