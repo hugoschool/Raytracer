@@ -6,7 +6,6 @@
 #include "Ray.hpp"
 #include "primitives/APrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
-#include <iostream>
 
 Raytracer::Triangle::Triangle(Raytracer::PrimitiveOptions options) : APrimitive(options)
 {
@@ -29,7 +28,6 @@ Raytracer::HitInfo Raytracer::Triangle::hits(Raytracer::Ray &ray)
     if (k_vec <= 0)
         return HitInfo(false);
     Math::Point3D coincide = ray.origin + (ray.direction * k_vec);
-
     Math::Vector3D ba = this->_options.b - this->_options.a;
     Math::Vector3D cb = this->_options.c - this->_options.b;
     Math::Vector3D ac = this->_options.a - this->_options.c;
@@ -47,7 +45,6 @@ Raytracer::HitInfo Raytracer::Triangle::hits(Raytracer::Ray &ray)
 
     if (orthogonal.dot(this->_normal) <= 0)
         return HitInfo(false);
-
     return HitInfo(true, coincide, _options.color);
 }
 
