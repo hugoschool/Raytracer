@@ -18,6 +18,9 @@ namespace Raytracer {
 
                 double length() const;
                 double dot(const Vector3D &vector) const;
+                
+                Vector3D normalize() const;
+
 
 
 

@@ -2,7 +2,7 @@
 
 #include "Math/Point3D.hpp"
 #include "Color.hpp"
-#include <string>
+#include "Math/Vector3D.hpp"
 
 namespace Raytracer {
     enum class PlaneAxis {
@@ -21,5 +21,9 @@ namespace Raytracer {
         // Plane
         PlaneAxis axis;
         long long position;
+        // Cuboid
+        Math::Vector3D diagonal;
+        // Cylinder
+        Math::Vector3D cylinderAxis;
     };
 }

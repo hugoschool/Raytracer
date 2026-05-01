@@ -2,9 +2,11 @@
 #include "Camera.hpp"
 #include "Color.hpp"
 #include "Exception.hpp"
+#include "Math/Vector3D.hpp"
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
+#include <iostream>
 #include <libconfig.h++>
 #include <memory>
 
@@ -83,6 +85,14 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     long long r = 0;
     std::string axisStr;
     long long position;
+    // long long diagonalX = 0;
+    // long long diagonalY = 0;
+    // long long diagonalZ = 0;
+    Math::Vector3D diagonal;
+    long long axisX = 0;
+    long long axisY = 0;
+    long long axisZ = 0;
+    Math::Vector3D cylinderAxis;
 
     setting.lookupValue("x", x);
     setting.lookupValue("y", y);
@@ -90,6 +100,12 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     setting.lookupValue("r", r);
     setting.lookupValue("axis", axisStr);
     setting.lookupValue("position", position);
+    // setting["diagonal"].lookupValue("x", diagonalX);
+    // setting["diagonal"].lookupValue("y", diagonalY);
+    // setting["diagonal"].lookupValue("z", diagonalZ);
+    setting["cylinderAxis"].lookupValue("x", axisX);
+    setting["cylinderAxis"].lookupValue("y", axisY);
+    setting["cylinderAxis"].lookupValue("z", axisZ);
 
     PlaneAxis axis = PlaneAxis::None;
     if (!axisStr.empty()) {
@@ -104,6 +120,9 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     }
 
     Color color = parseColor(setting);
+    cylinderAxis.x = static_cast<double>(axisX);
+    cylinderAxis.y = static_cast<double>(axisY);
+    cylinderAxis.z = static_cast<double>(axisZ);
 
     return {
         .center = Math::Point3D(x, y, z),
@@ -111,7 +130,13 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
         .radius = static_cast<double>(r),
         .axis = axis,
         .position = position,
+        .diagonal = diagonal,
+        .cylinderAxis = cylinderAxis
     };
+
+    // diagonal.x = static_cast<double>(diagonalX);
+    // diagonal.y = static_cast<double>(diagonalY);
+    // diagonal.z = static_cast<double>(diagonalZ);
 }
 
 Raytracer::LightOptions Raytracer::Config::parseLightOptions(const libconfig::Setting &setting) const
@@ -150,6 +175,7 @@ std::vector<std::shared_ptr<Raytracer::IPrimitive>> Raytracer::Config::parsePrim
         }
         return primitives;
     } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
         throw Raytracer::Exception("Wrong primitives configuration");
     }
 }
