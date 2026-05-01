@@ -7,7 +7,6 @@
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
-#include <array>
 #include <exception>
 #include <iostream>
 #include <libconfig.h++>
@@ -116,6 +115,10 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     long long r = 0;
     std::string axisStr;
     long long position;
+    long long axisX = 0;
+    long long axisY = 0;
+    long long axisZ = 0;
+    Math::Vector3D cylinderAxis;
 
     setting.lookupValue("x", x);
     setting.lookupValue("y", y);
@@ -123,8 +126,13 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     setting.lookupValue("r", r);
     setting.lookupValue("axis", axisStr);
     setting.lookupValue("position", position);
+
     Math::Vector3D normal;
     Math::Vector3D center = Math::Vector3D(x,y,z);
+
+    setting["cylinderAxis"].lookupValue("x", axisX);
+    setting["cylinderAxis"].lookupValue("y", axisY);
+    setting["cylinderAxis"].lookupValue("z", axisZ);
 
     if (!axisStr.empty()) {
         if (axisStr == "X" || axisStr == "x")
@@ -139,6 +147,9 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     }
 
     Color color = parseColor(setting);
+    cylinderAxis.x = static_cast<double>(axisX);
+    cylinderAxis.y = static_cast<double>(axisY);
+    cylinderAxis.z = static_cast<double>(axisZ);
 
     std::vector<Math::Point3D> vertices = parseVertices(setting);
 
@@ -148,6 +159,7 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
         .radius = static_cast<double>(r),
         .normal = normal,
         .vertices = vertices,
+        .cylinderAxis = cylinderAxis
     };
 }
 

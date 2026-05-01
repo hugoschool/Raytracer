@@ -17,5 +17,7 @@ namespace Raytracer {
         const Math::Vector3D normal;
         // Triangle
         std::vector<Math::Point3D> vertices;
+        // Cylinder
+        Math::Vector3D cylinderAxis;
     };
 }
