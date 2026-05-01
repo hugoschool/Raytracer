@@ -51,6 +51,15 @@ Raytracer::Math::Vector3D Raytracer::Math::Vector3D::operator/(const Raytracer::
     return Raytracer::Math::Vector3D(x / vector.x, y / vector.y, z / vector.z);
 }
 
+Raytracer::Math::Vector3D Raytracer::Math::Vector3D::operator/(const double &val) const
+{
+    if (val == 0) {
+        std::cerr << "Floating point exception" << std::endl;
+        return Raytracer::Math::Vector3D(*this);
+    }
+    return Raytracer::Math::Vector3D(x / val, y / val, z / val);
+}
+
 void Raytracer::Math::Vector3D::operator+=(const Vector3D &vector)
 {
     this->x += vector.x;
@@ -100,6 +109,11 @@ Raytracer::Math::Vector3D Raytracer::Math::Vector3D::operator=(const Matrix3x1 &
     return *this;
 }
 
+bool Raytracer::Math::Vector3D::operator==(const Vector3D &vector)
+{
+    return (this->x == vector.x && this->y == vector.y && this->z == vector.z);
+}
+
 // https://math.libretexts.org/Bookshelves/Applied_Mathematics/Mathematics_for_Game_Developers_(Burzynski)/04%3A_Matrices/4.06%3A_Rotation_Matrices_in_3-Dimensions
 // https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
 Raytracer::Math::Vector3D Raytracer::Math::Vector3D::rotateX(double degree) const
@@ -124,4 +138,9 @@ double Raytracer::Math::Vector3D::cosine(Vector3D &normal)
 {
     double value = this->dot(normal) / (this->length() * normal.length());
     return value;
+}
+
+Raytracer::Math::Vector3D Raytracer::Math::Vector3D::cross_product(Raytracer::Math::Vector3D &vector)
+{
+    return Math::Vector3D(this->y * vector.z - this->z * vector.y ,this->z * vector.x - this->x * vector.z, this->x * vector.y - this->y * vector.x);
 }

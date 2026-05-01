@@ -10,13 +10,15 @@ jobs:
     name: Build
     if: ${{ github.repository_owner == 'hugoschool' }}
     runs-on: ubuntu-latest
+    container:
+      image: archlinux:base-devel
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
 
       - name: Install libconfig++
         run: |
-          sudo apt-get update && sudo apt-get install -y libconfig++-dev
+          pacman -Sy --noconfirm libconfig clang
 
       - name: Build
         timeout-minutes: 2
