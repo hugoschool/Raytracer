@@ -16,7 +16,11 @@ namespace Raytracer {
 
             HitInfo hits(Ray &ray) override;
             Math::Vector3D getNormal(const Math::Point3D) const override;
+
         private:
             Math::Vector3D _normal;
+            Math::Point3D a;
+            Math::Point3D b;
+            Math::Point3D c;
     };
 }
