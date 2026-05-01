@@ -7,7 +7,7 @@ Raytracer::Camera::Camera() : origin(0, 0, 0), screen(), width(), height()
 {
 }
 
-Raytracer::Camera::Camera(const Math::Point3D origin, const Math::Rectangle3D screen,
+Raytracer::Camera::Camera(const Math::Point3D origin, const Screen screen,
     const std::size_t width, const std::size_t height) :
     origin(origin), screen(screen), width(width), height(height)
 {

@@ -7,7 +7,6 @@
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
-#include <array>
 #include <exception>
 #include <iostream>
 #include <libconfig.h++>
@@ -48,7 +47,7 @@ Raytracer::Camera Raytracer::Config::parseCamera() const
 
         return Camera(
             cameraOrigin,
-            Math::Rectangle3D(width, height, fov, cameraOrigin),
+            Screen(width, height, fov, cameraOrigin),
             width,
             height
         );

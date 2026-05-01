@@ -16,7 +16,6 @@ ifeq ($(ENV), dev-g3)
 endif
 
 MATH_SRC	:=	$(BASE_DIR)/src/Math/Point3D.cpp \
-				$(BASE_DIR)/src/Math/Rectangle3D.cpp \
 				$(BASE_DIR)/src/Math/Vector3D.cpp \
 				$(BASE_DIR)/src/Math/Matrix3x3.cpp \
 				$(BASE_DIR)/src/Math/Matrix3x1.cpp
@@ -46,7 +45,8 @@ SRC	:=	$(COMMON_SRC) \
 		src/Config.cpp \
 		src/DLLoader.cpp \
 		src/Camera.cpp \
-		src/Ray.cpp
+		src/Ray.cpp \
+		src/Screen.cpp
 
 OBJ	:=	$(SRC:.cpp=.o)
 

@@ -1,13 +1,13 @@
-#include "Math/Rectangle3D.hpp"
+#include "Screen.hpp"
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include <cmath>
 
-Raytracer::Math::Rectangle3D::Rectangle3D() : origin(-200, -200, -10), leftSide(0, 400, 0), bottomSide(400, 0, 0)
+Raytracer::Screen::Screen() : origin(-200, -200, -10), leftSide(0, 400, 0), bottomSide(400, 0, 0)
 {
 }
 
-Raytracer::Math::Rectangle3D::Rectangle3D(const std::size_t width, const std::size_t height, const double fov,
+Raytracer::Screen::Screen(const std::size_t width, const std::size_t height, const double fov,
     const Math::Point3D cameraOrigin)
 {
     const double distanceScreen = 15.0; // also known as focal distance
@@ -20,10 +20,10 @@ Raytracer::Math::Rectangle3D::Rectangle3D(const std::size_t width, const std::si
     bottomSide = Math::Vector3D(w, 0, 0);
 }
 
-Raytracer::Math::Point3D Raytracer::Math::Rectangle3D::pointAt(double u, double v)
+Raytracer::Math::Point3D Raytracer::Screen::pointAt(double u, double v)
 {
-    Vector3D bottomVector = bottomSide * u;
-    Vector3D leftVector = leftSide - leftSide * v;
+    Math::Vector3D bottomVector = bottomSide * u;
+    Math::Vector3D leftVector = leftSide - leftSide * v;
 
     return origin + leftVector + bottomVector;
 }
