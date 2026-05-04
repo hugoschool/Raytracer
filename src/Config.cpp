@@ -77,6 +77,22 @@ Raytracer::Color Raytracer::Config::parseColor(const libconfig::Setting &setting
     };
 }
 
+Raytracer::Math::Vector3D Raytracer::Config::parseCylinderAxis(const libconfig::Setting &setting) const
+{
+    long long x;
+    long long y;
+    long long z;
+
+    if (!(
+        setting["cylinderAxis"].lookupValue("x", x) &&
+        setting["cylinderAxis"].lookupValue("y", y) &&
+        setting["cylinderAxis"].lookupValue("z", z)
+    )) {
+        return {0, 0, 0};
+    }
+    return Math::Vector3D(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z));
+}
+
 Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libconfig::Setting &setting) const
 {
     long long x = 0;
@@ -85,14 +101,6 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     long long r = 0;
     std::string axisStr;
     long long position;
-    // long long diagonalX = 0;
-    // long long diagonalY = 0;
-    // long long diagonalZ = 0;
-    Math::Vector3D diagonal;
-    long long axisX = 0;
-    long long axisY = 0;
-    long long axisZ = 0;
-    Math::Vector3D cylinderAxis;
 
     setting.lookupValue("x", x);
     setting.lookupValue("y", y);
@@ -100,12 +108,8 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     setting.lookupValue("r", r);
     setting.lookupValue("axis", axisStr);
     setting.lookupValue("position", position);
-    // setting["diagonal"].lookupValue("x", diagonalX);
-    // setting["diagonal"].lookupValue("y", diagonalY);
-    // setting["diagonal"].lookupValue("z", diagonalZ);
-    setting["cylinderAxis"].lookupValue("x", axisX);
-    setting["cylinderAxis"].lookupValue("y", axisY);
-    setting["cylinderAxis"].lookupValue("z", axisZ);
+
+    Math::Vector3D cylinderAxis = parseCylinderAxis(setting);
 
     PlaneAxis axis = PlaneAxis::None;
     if (!axisStr.empty()) {
@@ -120,9 +124,6 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     }
 
     Color color = parseColor(setting);
-    cylinderAxis.x = static_cast<double>(axisX);
-    cylinderAxis.y = static_cast<double>(axisY);
-    cylinderAxis.z = static_cast<double>(axisZ);
 
     return {
         .center = Math::Point3D(x, y, z),
@@ -130,13 +131,8 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
         .radius = static_cast<double>(r),
         .axis = axis,
         .position = position,
-        .diagonal = diagonal,
         .cylinderAxis = cylinderAxis
     };
-
-    // diagonal.x = static_cast<double>(diagonalX);
-    // diagonal.y = static_cast<double>(diagonalY);
-    // diagonal.z = static_cast<double>(diagonalZ);
 }
 
 Raytracer::LightOptions Raytracer::Config::parseLightOptions(const libconfig::Setting &setting) const
