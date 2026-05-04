@@ -12,11 +12,6 @@ CYLINDER_SRC	:=	$(COMMON_SRC) \
 CYLINDER_OBJ	:=	$(CYLINDER_SRC:.cpp=.o)
 CYLINDER_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_cylinder.so
 
-CUBOID_SRC	:=	$(COMMON_SRC) \
-				Cuboid.cpp
-CUBOID_OBJ	:=	$(CUBOID_SRC:.cpp=.o)
-CUBOID_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_cuboid.so
-
 PLANE_SRC	:=	$(COMMON_SRC) \
 				Plane.cpp
 PLANE_OBJ	:=	$(PLANE_SRC:.cpp=.o)
@@ -24,26 +19,22 @@ PLANE_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_plane.so
 
 include $(BASE_DIR)/common.mk
 
-all:	$(SPHERE_BIN) $(CYLINDER_BIN) $(CUBOID_BIN) $(PLANE_BIN)
+all:	$(SPHERE_BIN) $(CYLINDER_BIN) $(PLANE_BIN)
 
 $(SPHERE_BIN):	$(SPHERE_OBJ)
 
 $(CYLINDER_BIN):	$(CYLINDER_OBJ)
-
-$(CUBOID_BIN):	$(CUBOID_OBJ)
 
 $(PLANE_BIN):	$(PLANE_OBJ)
 
 clean:
 	$(RM) $(SPHERE_OBJ)
 	$(RM) $(CYLINDER_OBJ)
-	$(RM) $(CUBOID_OBJ)
 	$(RM) $(PLANE_OBJ)
 
 fclean:	clean
 	$(RM) $(SPHERE_BIN)
 	$(RM) $(CYLINDER_BIN)
-	$(RM) $(CUBOID_BIN)
 	$(RM) $(PLANE_OBJ)
 
 re:	fclean all

@@ -21,8 +21,6 @@ namespace Raytracer {
         // Plane
         PlaneAxis axis;
         long long position;
-        // Cuboid
-        Math::Vector3D diagonal;
         // Cylinder
         Math::Vector3D cylinderAxis;
     };
