@@ -8,7 +8,7 @@ SPHERE_OBJ	:=	$(SPHERE_SRC:.cpp=.o)
 SPHERE_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_sphere.so
 
 CYLINDER_SRC	:=	$(COMMON_SRC) \
-				Cylinder.cpp
+					Cylinder.cpp
 CYLINDER_OBJ	:=	$(CYLINDER_SRC:.cpp=.o)
 CYLINDER_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_cylinder.so
 
