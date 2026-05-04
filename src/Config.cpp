@@ -83,12 +83,14 @@ Raytracer::Math::Vector3D Raytracer::Config::parseCylinderAxis(const libconfig::
     long long y;
     long long z;
 
-    if (!(
-        setting["cylinderAxis"].lookupValue("x", x) &&
-        setting["cylinderAxis"].lookupValue("y", y) &&
-        setting["cylinderAxis"].lookupValue("z", z)
-    )) {
-        return {0, 0, 0};
+    if (setting["cylinderAxis"].lookupValue("x", x) == false) {
+        x = 0;
+    }
+    if (setting["cylinderAxis"].lookupValue("y", y) == false) {
+        y = 0;
+    }
+    if (setting["cylinderAxis"].lookupValue("z", z) == false) {
+        z = 0;
     }
     return Math::Vector3D(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z));
 }
@@ -109,7 +111,10 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     setting.lookupValue("axis", axisStr);
     setting.lookupValue("position", position);
 
-    Math::Vector3D cylinderAxis = parseCylinderAxis(setting);
+    Math::Vector3D cylinderAxis(0, 0, 0);
+    if (setting.exists("cylinderAxis")) {
+        cylinderAxis = parseCylinderAxis(setting);
+    }
 
     PlaneAxis axis = PlaneAxis::None;
     if (!axisStr.empty()) {
