@@ -42,11 +42,14 @@ Raytracer::HitInfo Raytracer::Cylinder::hits(Raytracer::Ray &ray)
         k = std::min(std::abs(k1), std::abs(k2));
     }
     Math::Point3D coincide = ray.origin + (D * k);
+
+    // can see this for finite cylinder
     // verfiy for finite cylinder
-    double projection = (coincide - _options.center).dot(V);
-    if (projection < 0 || projection > _options.cylinderAxis.length()) {
-        return HitInfo(false);
-    }
+    // double projection = (coincide - _options.center).dot(V);
+    // if (projection < 0 || projection > _options.cylinderAxis.length()) {
+    //     return HitInfo(false);
+    // }
+
     return HitInfo(true, coincide, _options.color);
 }
 
@@ -55,15 +58,15 @@ Raytracer::Math::Vector3D Raytracer::Cylinder::getNormal(const Math::Point3D poi
     double t = (point - _options.center).dot(_options.cylinderAxis.normalize());
     Math::Point3D axis_point = _options.center + (_options.cylinderAxis.normalize() * t);
 
+    // can see this for finite cylinder
     // top hit
-    if (std::abs(t - _options.cylinderAxis.length()) < 0 && (point - axis_point).dot(point - axis_point) <= std::pow(_options.radius, 2)) {
-        return _options.cylinderAxis.normalize();
-    }
-
+    // if (std::abs(t - _options.cylinderAxis.length()) < 0 && (point - axis_point).dot(point - axis_point) <= std::pow(_options.radius, 2)) {
+    //     return _options.cylinderAxis.normalize();
+    // }
     // // bottom hit
-    if (std::abs(t) < 0 && (point - axis_point).dot(point - axis_point) <= std::pow(_options.radius, 2)) {
-        return _options.cylinderAxis.normalize() * -1;
-    }
+    // if (std::abs(t) < 0 && (point - axis_point).dot(point - axis_point) <= std::pow(_options.radius, 2)) {
+    //     return _options.cylinderAxis.normalize() * -1;
+    // }
 
     // side hit
     return (point - axis_point).normalize();
