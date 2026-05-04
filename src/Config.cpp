@@ -111,7 +111,14 @@ std::vector<Raytracer::Math::Point3D> Raytracer::Config::parseVertices(const lib
 
 Raytracer::MaterialOptions Raytracer::Config::parseMaterialOptions(const libconfig::Setting &) const
 {
-    return {};
+    return {
+        .color = Color(),
+        .properties = {
+            .opacity = 0.0,
+            .reflexion = 0.0,
+            .refraction = 0.0
+        }
+    };
 }
 
 std::shared_ptr<Raytracer::IMaterial> Raytracer::Config::parseMaterial(const libconfig::Setting &initialSetting) const
