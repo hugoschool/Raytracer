@@ -5,6 +5,7 @@
 namespace Raytracer::Utils {
     constexpr std::string_view primitiveEntrypoint("primitiveEntrypoint");
     constexpr std::string_view lightEntrypoint("lightEntrypoint");
+    constexpr std::string_view graphicalEntrypoint("graphicalEntrypoint");
 
     // Related to the binary path of the raytracer.
     constexpr std::string_view pluginsDir("./plugins");
