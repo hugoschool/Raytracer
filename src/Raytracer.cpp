@@ -102,12 +102,8 @@ void Raytracer::Raytracer::processImage(std::size_t yStart, std::size_t yEnd, st
     }
 }
 
-void Raytracer::Raytracer::exportPPM()
+void Raytracer::Raytracer::render()
 {
-    std::cout << "P3" << std::endl;
-    std::cout << _camera.width << " " << _camera.height << std::endl;
-    std::cout << "255" << std::endl;
-
     unsigned int nproc = std::thread::hardware_concurrency();
 
     // In case hardware_concurrency fails
@@ -144,12 +140,27 @@ void Raytracer::Raytracer::exportPPM()
 
     for (unsigned int y = 0; y < _camera.height; y++) {
         for (unsigned int x = 0; x < _camera.width; x++) {
-            Pixel pixel = _pixels.at(x).at(y);
+            Pixel &pixel = _pixels.at(x).at(y);
             pixel.multiplier /= this->_maxilluminance;
             pixel.color = pixel.color * pixel.multiplier;
+        }
+    }
+}
+
+void Raytracer::Raytracer::exportPPM()
+{
+    std::cout << "P3" << std::endl;
+    std::cout << _camera.width << " " << _camera.height << std::endl;
+    std::cout << "255" << std::endl;
+
+    render();
+
+    for (unsigned int y = 0; y < _camera.height; y++) {
+        for (unsigned int x = 0; x < _camera.width; x++) {
+            Pixel pixel = _pixels.at(x).at(y);
             std::cout << static_cast<unsigned int>(pixel.color.r) << " "
-            << static_cast<unsigned int>(pixel.color.g) << " "
-            << static_cast<unsigned int>(pixel.color.b) << std::endl;
+                << static_cast<unsigned int>(pixel.color.g) << " "
+                << static_cast<unsigned int>(pixel.color.b) << std::endl;
         }
     }
 }

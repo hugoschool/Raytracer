@@ -22,6 +22,7 @@ namespace Raytracer {
             ~Raytracer() = default;
 
             void exportPPM();
+            void render();
             void processImage(std::size_t yStart, std::size_t yEnd, std::size_t xStart, std::size_t xEnd);
             void launchGraphicalLibrary(std::string libraryName);
 
