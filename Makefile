@@ -54,7 +54,7 @@ BINARY	:=	raytracer
 
 all:	plugins $(BINARY)
 
-plugins: primitives lights
+plugins: primitives lights graphical
 
 primitives:
 	$(MAKE) -C src/primitives
@@ -62,17 +62,22 @@ primitives:
 lights:
 	$(MAKE) -C src/lights
 
+graphical:
+	$(MAKE) -C src/graphical
+
 $(BINARY):	$(OBJ)
 	$(CXX) -o $(BINARY) $(OBJ) $(LDFLAGS) $(LDLIBS)
 
 clean:
 	$(MAKE) -C src/primitives clean
 	$(MAKE) -C src/lights clean
+	$(MAKE) -C src/graphical clean
 	$(RM) $(OBJ)
 
 fclean:	clean
 	$(MAKE) -C src/primitives fclean
 	$(MAKE) -C src/lights fclean
+	$(MAKE) -C src/graphical fclean
 	$(RM) $(BINARY)
 
 re:	fclean all
