@@ -16,9 +16,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
 
-      - name: Install libconfig++
+      - name: Install dependencies
         run: |
-          pacman -Sy --noconfirm libconfig clang
+          pacman -Sy --noconfirm libconfig clang sfml
 
       - name: Build
         timeout-minutes: 2
