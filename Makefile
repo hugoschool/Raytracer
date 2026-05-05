@@ -41,6 +41,7 @@ MAKEFLAGS += --no-print-directory
 SRC	:=	$(COMMON_SRC) \
 		$(MATH_SRC) \
 		src/main.cpp \
+		src/Args.cpp \
 		src/Raytracer.cpp \
 		src/Factory.cpp \
 		src/Config.cpp \

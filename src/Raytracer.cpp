@@ -27,6 +27,10 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _lights = _config.parseLights();
 }
 
+void Raytracer::Raytracer::launchGraphicalLibrary(std::string libraryName)
+{
+}
+
 Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color)
 {
     color = hit.getColor();

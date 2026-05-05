@@ -23,6 +23,8 @@ namespace Raytracer {
 
             void exportPPM();
             void processImage(std::size_t yStart, std::size_t yEnd, std::size_t xStart, std::size_t xEnd);
+            void launchGraphicalLibrary(std::string libraryName);
+
         private:
             const std::string _sceneFile;
             Config _config;
