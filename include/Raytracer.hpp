@@ -14,6 +14,7 @@ namespace Raytracer {
         Color color;
         double multiplier;
     };
+
     class Raytracer {
         public:
             Raytracer() = delete;
@@ -21,13 +22,16 @@ namespace Raytracer {
             ~Raytracer() = default;
 
             void exportPPM();
+            void processImage(std::size_t yStart, std::size_t yEnd, std::size_t xStart, std::size_t xEnd);
         private:
             const std::string _sceneFile;
             Config _config;
             double _maxilluminance;
             Camera _camera;
+
             Pixel handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color);
-            std::vector<Pixel> _pixels;
+
+            std::vector<std::vector<Pixel>> _pixels;
             std::vector<std::shared_ptr<IPrimitive>> _primitives;
             std::vector<std::shared_ptr<ILight>> _lights;
     };
