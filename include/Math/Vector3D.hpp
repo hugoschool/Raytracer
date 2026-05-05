@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Matrix3x1.hpp"
+
 namespace Raytracer {
     namespace Math {
         class Matrix3x1;
@@ -18,15 +19,13 @@ namespace Raytracer {
 
                 double length() const;
                 double dot(const Vector3D &vector) const;
+                Vector3D normalize() const;
                 Raytracer::Math::Vector3D cross_product(Raytracer::Math::Vector3D &vector);
-
-
 
                 Vector3D rotateX(double degree) const;
                 Vector3D rotateY(double degree) const;
                 Vector3D rotateZ(double degree) const;
                 double cosine(Vector3D &normal);
-
 
                 Vector3D operator+(const Vector3D &vector) const;
                 Vector3D operator-(const Vector3D &vector) const;

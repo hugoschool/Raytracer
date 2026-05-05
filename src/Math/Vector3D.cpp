@@ -22,6 +22,11 @@ double Raytracer::Math::Vector3D::dot(const Vector3D &vector) const
     return x * vector.x + y * vector.y + z * vector.z;
 }
 
+Raytracer::Math::Vector3D Raytracer::Math::Vector3D::normalize() const
+{
+    return Raytracer::Math::Vector3D(x / this->length(), y / this->length(), z / this->length());
+}
+
 Raytracer::Math::Vector3D Raytracer::Math::Vector3D::operator+(const Raytracer::Math::Vector3D &vector) const
 {
     return Raytracer::Math::Vector3D(x + vector.x, y + vector.y, z + vector.z);
