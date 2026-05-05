@@ -162,7 +162,7 @@ Raytracer::LightOptions Raytracer::Config::parseLightOptions(const libconfig::Se
 
     return {
         .position = Math::Point3D(x, y, z),
-        .color = Color(),
+        .color = Color(255,255,255),
     };
 }
 

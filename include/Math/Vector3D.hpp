@@ -1,7 +1,9 @@
 #pragma once
 
+#include "Color.hpp"
 #include "Matrix3x1.hpp"
 namespace Raytracer {
+    struct Color;
     namespace Math {
         class Matrix3x1;
         class Vector3D {
@@ -9,6 +11,7 @@ namespace Raytracer {
                 Vector3D() = default;
                 Vector3D(double x, double y, double z);
                 Vector3D(const Matrix3x1 &matrix);
+                Vector3D(const Color &color);
 
                 ~Vector3D() = default;
 
@@ -33,7 +36,7 @@ namespace Raytracer {
                 Vector3D operator*(const Vector3D &vector) const;
                 Vector3D operator/(const Vector3D &vector) const;
                 Vector3D operator/(const double &val) const;
-
+                Color operator*(Color &other) const;
                 Vector3D operator*(const double nb) const;
                 void operator*=(const double nb);
 
