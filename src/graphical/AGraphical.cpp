@@ -9,6 +9,16 @@ Raytracer::AGraphical::AGraphical::~AGraphical()
 {
 }
 
-void Raytracer::AGraphical::putPixel(Raytracer::Color)
+void Raytracer::AGraphical::displayPixels(std::vector<std::vector<Pixel>> &)
 {
 }
+
+void Raytracer::AGraphical::handleEvents()
+{
+}
+
+bool Raytracer::AGraphical::isOpen()
+{
+    return false;
+}
+

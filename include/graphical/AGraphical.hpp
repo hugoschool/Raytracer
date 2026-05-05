@@ -9,7 +9,9 @@ namespace Raytracer {
             AGraphical(const std::size_t width, const std::size_t height);
             ~AGraphical();
 
-            void putPixel(Raytracer::Color color) override;
+            void handleEvents() override;
+            bool isOpen() override;
+            void displayPixels(std::vector<std::vector<Pixel>> &) override;
 
         protected:
             const std::size_t _width;

@@ -1,12 +1,15 @@
 #pragma once
 
-#include "Color.hpp"
+#include "Pixel.hpp"
+#include <vector>
 
 namespace Raytracer {
     class IGraphical {
         public:
             virtual ~IGraphical() = default;
 
-            virtual void putPixel(Raytracer::Color color) = 0;
+            virtual void handleEvents() = 0;
+            virtual bool isOpen() = 0;
+            virtual void displayPixels(std::vector<std::vector<Pixel>> &) = 0;
     };
 }

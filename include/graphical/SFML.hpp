@@ -9,6 +9,10 @@ namespace Raytracer {
             SFML();
             ~SFML();
 
+            bool isOpen() override;
+            void handleEvents() override;
+            void displayPixels(std::vector<std::vector<Pixel>> &) override;
+
         private:
             sf::RenderWindow _window;
     };
