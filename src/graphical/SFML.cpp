@@ -1,5 +1,6 @@
 #include "graphical/SFML.hpp"
 #include "graphical/AGraphical.hpp"
+#include "graphical/GraphicalOptions.hpp"
 #include "graphical/IGraphical.hpp"
 #include "Exception.hpp"
 #include <exception>
@@ -21,7 +22,7 @@ Raytracer::SFML::~SFML()
     _window.close();
 }
 
-extern "C" Raytracer::IGraphical *graphicalEntrypoint()
+extern "C" Raytracer::IGraphical *graphicalEntrypoint(Raytracer::GraphicalOptions)
 {
     return new Raytracer::SFML();
 }
