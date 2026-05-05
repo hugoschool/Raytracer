@@ -11,11 +11,6 @@
 #include <vector>
 
 namespace Raytracer {
-    struct Pixel {
-        Color color;
-        double multiplier;
-    };
-
     class Raytracer {
         public:
             Raytracer() = delete;
