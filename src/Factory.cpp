@@ -1,5 +1,9 @@
 #include "Factory.hpp"
+#include "DLLoader.hpp"
+#include "Exception.hpp"
 #include "Utils.hpp"
+#include "graphical/IGraphical.hpp"
+#include "graphical/GraphicalOptions.hpp"
 #include "primitives/PrimitiveOptions.hpp"
 #include <algorithm>
 #include <filesystem>
@@ -34,6 +38,11 @@ void Raytracer::Factory::registerAllPlugins()
         // Category name
         std::getline(ss, token, delim);
         config.category = std::string(token);
+
+        // Ignore graphics category, only loaded on createGraphics
+        // This is made to prevent memory leaks on load from SFML
+        if (config.category == "graphical")
+            continue;
 
         // Object name
         std::getline(ss, token, delim);
@@ -82,5 +91,45 @@ std::shared_ptr<Raytracer::ILight> Raytracer::Factory::createLight(const std::st
         return DLLoader::turnFunctionIntoInstance(function, options);
     } catch (const std::exception &e) {
         throw Exception("Couldn't find " + name);
+    }
+}
+
+std::shared_ptr<Raytracer::IGraphical> Raytracer::Factory::createGraphical(const std::string name)
+{
+    GraphicalOptions options;
+
+    try {
+        std::function function = _graphicals.at({
+            .category = std::string("graphical"),
+            .name = name
+        });
+
+        return DLLoader::turnFunctionIntoInstance(function, options);
+    } catch (const std::exception &e) {
+        // Load the graphical library, as it's not registed in registerAllPlugins
+        std::string pluginName = std::string(Utils::pluginsDir) + "/raytracer_graphical_" + name + ".so";
+
+        if (!std::filesystem::exists(pluginName))
+            throw Exception("Unknown Graphical plugin" + name);
+
+        std::shared_ptr<DLLoader> loader = std::make_shared<DLLoader>(pluginName);
+
+        if (!loader->symbolExists(std::string(Utils::graphicalEntrypoint)))
+            throw Exception("Incorrect plugin " + name);
+
+        _loaders.insert({pluginName, loader});
+
+        PluginConfig config;
+        config.category = "graphical";
+        config.name = name;
+
+        std::function function = loader->getSymbol<IGraphical, GraphicalOptions>(std::string(Utils::graphicalEntrypoint));
+
+        _graphicals.insert({
+            config,
+            function
+        });
+
+        return DLLoader::turnFunctionIntoInstance(function, options);
     }
 }

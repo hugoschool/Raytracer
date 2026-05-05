@@ -2,6 +2,7 @@
 #include "Camera.hpp"
 #include "Color.hpp"
 #include "Exception.hpp"
+#include "Factory.hpp"
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "lights/ILight.hpp"
@@ -13,7 +14,7 @@
 #include <memory>
 #include <vector>
 
-Raytracer::Config::Config(const std::string fileName) : _fileName(fileName), _config(), _factory()
+Raytracer::Config::Config(const std::string fileName, Factory &factory) : _fileName(fileName), _config(), _factory(factory)
 {
     // Using as c_str for compilation on previous libconfig++
     _config.readFile(_fileName.c_str());

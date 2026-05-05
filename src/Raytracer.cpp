@@ -14,7 +14,7 @@
 #include <thread>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(_sceneFile), _maxilluminance(1.0)
+    _sceneFile(sceneFile), _factory(), _config(_sceneFile, _factory), _maxilluminance(1.0)
 {
     _camera = _config.parseCamera();
     _primitives = _config.parsePrimitives();
@@ -29,6 +29,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
 
 void Raytracer::Raytracer::launchGraphicalLibrary(std::string libraryName)
 {
+    _factory.createGraphical(libraryName);
 }
 
 Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color)

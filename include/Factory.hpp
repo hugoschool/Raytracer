@@ -1,6 +1,8 @@
 #pragma once
 
 #include "DLLoader.hpp"
+#include "graphical/GraphicalOptions.hpp"
+#include "graphical/IGraphical.hpp"
 #include "lights/ILight.hpp"
 #include "lights/LightOptions.hpp"
 #include "primitives/IPrimitive.hpp"
@@ -19,6 +21,7 @@ namespace Raytracer {
             void registerAllPlugins();
             std::shared_ptr<IPrimitive> createPrimitive(const std::string name, PrimitiveOptions options);
             std::shared_ptr<ILight> createLight(const std::string name, LightOptions options);
+            std::shared_ptr<IGraphical> createGraphical(const std::string name);
 
         private:
             struct PluginConfig {
@@ -48,5 +51,6 @@ namespace Raytracer {
             std::map<const std::string, std::shared_ptr<DLLoader>> _loaders;
             std::unordered_map<PluginConfig, std::function<IPrimitive *(PrimitiveOptions)>, PluginConfigHash> _primitives;
             std::unordered_map<PluginConfig, std::function<ILight *(LightOptions)>, PluginConfigHash> _lights;
+            std::unordered_map<PluginConfig, std::function<IGraphical *(GraphicalOptions)>, PluginConfigHash> _graphicals;
     };
 }

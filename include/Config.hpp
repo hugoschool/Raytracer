@@ -15,7 +15,7 @@ namespace Raytracer {
     class Config {
         public:
             Config() = delete;
-            Config(const std::string fileName);
+            Config(const std::string fileName, Factory &factory);
             ~Config() = default;
 
             Camera parseCamera() const;
@@ -28,7 +28,7 @@ namespace Raytracer {
             libconfig::Config _config;
             std::optional<std::reference_wrapper<libconfig::Setting>> _root;
 
-            Factory _factory;
+            Factory &_factory;
 
             Color parseColor(const libconfig::Setting &setting) const;
             Math::Vector3D parseCylinderAxis(const libconfig::Setting &setting) const;

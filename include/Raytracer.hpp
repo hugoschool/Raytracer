@@ -2,6 +2,7 @@
 
 #include "Camera.hpp"
 #include "Config.hpp"
+#include "Factory.hpp"
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
 #include <libconfig.h++>
@@ -28,6 +29,7 @@ namespace Raytracer {
 
         private:
             const std::string _sceneFile;
+            Factory _factory;
             Config _config;
             double _maxilluminance;
             Camera _camera;
