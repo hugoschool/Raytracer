@@ -1,9 +1,12 @@
 #include "Factory.hpp"
 #include "Utils.hpp"
 #include "primitives/PrimitiveOptions.hpp"
+#include "transforms/ITransform.hpp"
+#include "transforms/TransformOptions.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 
 Raytracer::Factory::Factory()
 {
@@ -53,11 +56,16 @@ void Raytracer::Factory::registerAllPlugins()
                 config,
                 loader->getSymbol<ILight, LightOptions>(std::string(Utils::lightEntrypoint))
             });
+        } else if (loader->symbolExists(std::string(Utils::transformEntrypoint))) {
+            _transforms.insert({
+                config,
+                loader->getSymbol<ITransform, TransformOptions>(std::string(Utils::transformEntrypoint))
+            });
         }
     }
 }
 
-std::shared_ptr<Raytracer::IPrimitive> Raytracer::Factory::createPrimitive(const std::string name, PrimitiveOptions options)
+std::shared_ptr<Raytracer::IPrimitive> Raytracer::Factory::createPrimitive(const std::string name, PrimitiveOptions options) const
 {
     try {
         std::function function = _primitives.at({
@@ -71,11 +79,25 @@ std::shared_ptr<Raytracer::IPrimitive> Raytracer::Factory::createPrimitive(const
     }
 }
 
-std::shared_ptr<Raytracer::ILight> Raytracer::Factory::createLight(const std::string name, LightOptions options)
+std::shared_ptr<Raytracer::ILight> Raytracer::Factory::createLight(const std::string name, LightOptions options) const
 {
     try {
         std::function function = _lights.at({
             .category = std::string("light"),
+            .name = name
+        });
+
+        return DLLoader::turnFunctionIntoInstance(function, options);
+    } catch (const std::exception &e) {
+        throw Exception("Couldn't find " + name);
+    }
+}
+
+std::shared_ptr<Raytracer::ITransform> Raytracer::Factory::createTransform(const std::string name, TransformOptions options) const
+{
+    try {
+        std::function function = _transforms.at({
+            .category = std::string("transform"),
             .name = name
         });
 

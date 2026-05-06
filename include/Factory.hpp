@@ -5,6 +5,8 @@
 #include "lights/LightOptions.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
+#include "transforms/ITransform.hpp"
+#include "transforms/TransformOptions.hpp"
 #include <unordered_map>
 #include <map>
 #include <memory>
@@ -17,8 +19,9 @@ namespace Raytracer {
             ~Factory() = default;
 
             void registerAllPlugins();
-            std::shared_ptr<IPrimitive> createPrimitive(const std::string name, PrimitiveOptions options);
-            std::shared_ptr<ILight> createLight(const std::string name, LightOptions options);
+            std::shared_ptr<IPrimitive> createPrimitive(const std::string name, PrimitiveOptions options) const;
+            std::shared_ptr<ILight> createLight(const std::string name, LightOptions options) const;
+            std::shared_ptr<ITransform> createTransform(const std::string name, TransformOptions options) const;
 
         private:
             struct PluginConfig {
@@ -48,5 +51,6 @@ namespace Raytracer {
             std::map<const std::string, std::shared_ptr<DLLoader>> _loaders;
             std::unordered_map<PluginConfig, std::function<IPrimitive *(PrimitiveOptions)>, PluginConfigHash> _primitives;
             std::unordered_map<PluginConfig, std::function<ILight *(LightOptions)>, PluginConfigHash> _lights;
+            std::unordered_map<PluginConfig, std::function<ITransform *(TransformOptions)>, PluginConfigHash> _transforms;
     };
 }
