@@ -20,10 +20,15 @@ int main(int argc, char **argv)
     try {
         Raytracer::Raytracer raytracer(argv[1]);
 
+        raytracer.render();
+
         std::optional<std::string> graphicalLib = Raytracer::Args::parseGraphicalLibrary(argc, argv);
         if (graphicalLib.has_value())
             raytracer.launchGraphicalLibrary(graphicalLib.value());
-        else
+
+        raytracer.execute();
+
+        if (!graphicalLib.has_value())
             raytracer.exportPPM();
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;

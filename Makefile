@@ -46,6 +46,7 @@ SRC	:=	$(COMMON_SRC) \
 		src/Factory.cpp \
 		src/Config.cpp \
 		src/DLLoader.cpp \
+		src/ThreadPool.cpp \
 		src/Camera.cpp \
 		src/Ray.cpp
 

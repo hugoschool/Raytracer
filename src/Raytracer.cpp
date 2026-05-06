@@ -3,6 +3,7 @@
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "Ray.hpp"
+#include "graphical/IGraphical.hpp"
 #include "lights/ILight.hpp"
 #include "lights/LightOptions.hpp"
 #include "primitives/IPrimitive.hpp"
@@ -14,7 +15,8 @@
 #include <thread>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _factory(), _config(_sceneFile, _factory), _maxilluminance(1.0)
+    _sceneFile(sceneFile), _factory(), _config(_sceneFile, _factory), _maxilluminance(1.0),
+    _threads()
 {
     _camera = _config.parseCamera();
     _primitives = _config.parsePrimitives();
@@ -27,9 +29,19 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _lights = _config.parseLights();
 }
 
+void Raytracer::Raytracer::graphicalLoop(std::shared_ptr<IGraphical> graphical)
+{
+    while (graphical->isOpen()) {
+        graphical->handleEvents();
+        graphical->displayPixels(_pixels);
+    }
+}
+
 void Raytracer::Raytracer::launchGraphicalLibrary(std::string libraryName)
 {
-    _factory.createGraphical(libraryName);
+    std::shared_ptr<IGraphical> graphical = _factory.createGraphical(libraryName);
+
+    _threads.add(std::thread(&Raytracer::graphicalLoop, this, graphical));
 }
 
 Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color)
@@ -111,9 +123,6 @@ void Raytracer::Raytracer::render()
     if (nproc == 0)
         nproc = 1;
 
-    std::vector<std::thread> threads;
-    threads.reserve(nproc);
-
     unsigned int xStart = 0;
     unsigned int interval = std::floorf(static_cast<float>(_camera.width) / nproc);
     unsigned int xEnd = interval;
@@ -128,16 +137,17 @@ void Raytracer::Raytracer::render()
     }
 
     for (unsigned int i = 0; i < nproc; i++) {
-        threads.push_back(std::thread(&Raytracer::processImage, this, 0, _camera.height, xStart, xEnd));
+        _threads.add(std::thread(&Raytracer::processImage, this, 0, _camera.height, xStart, xEnd));
         xStart = xEnd;
         xEnd += interval;
         if (i + 1 == nproc - 1)
             xEnd += compensation;
     }
+}
 
-    for (std::thread &thread : threads) {
-        thread.join();
-    }
+void Raytracer::Raytracer::execute()
+{
+    _threads.execute();
 
     for (unsigned int y = 0; y < _camera.height; y++) {
         for (unsigned int x = 0; x < _camera.width; x++) {
@@ -153,8 +163,6 @@ void Raytracer::Raytracer::exportPPM()
     std::cout << "P3" << std::endl;
     std::cout << _camera.width << " " << _camera.height << std::endl;
     std::cout << "255" << std::endl;
-
-    render();
 
     for (unsigned int y = 0; y < _camera.height; y++) {
         for (unsigned int x = 0; x < _camera.width; x++) {

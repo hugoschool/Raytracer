@@ -3,6 +3,7 @@
 #include "Camera.hpp"
 #include "Config.hpp"
 #include "Factory.hpp"
+#include "ThreadPool.hpp"
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
 #include <libconfig.h++>
@@ -17,6 +18,7 @@ namespace Raytracer {
             Raytracer(const std::string sceneFile);
             ~Raytracer() = default;
 
+            void execute();
             void exportPPM();
             void render();
             void processImage(std::size_t yStart, std::size_t yEnd, std::size_t xStart, std::size_t xEnd);
@@ -28,8 +30,10 @@ namespace Raytracer {
             Config _config;
             double _maxilluminance;
             Camera _camera;
+            ThreadPool _threads;
 
             Pixel handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color);
+            void graphicalLoop(std::shared_ptr<IGraphical> graphical);
 
             std::vector<std::vector<Pixel>> _pixels;
             std::vector<std::shared_ptr<IPrimitive>> _primitives;
