@@ -16,6 +16,7 @@
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _sceneFile(sceneFile), _config(_sceneFile), _maxilluminance(1.0)
 {
+    _config.parseIncludes();
     _camera = _config.parseCamera();
     _primitives = _config.parsePrimitives();
     // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
