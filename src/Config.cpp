@@ -137,15 +137,15 @@ std::shared_ptr<Raytracer::ITransform> Raytracer::Config::parseTransform(
 
     for (const libconfig::Setting &transform : setting["transforms"]) {
         std::string type;
-        unsigned int angle = 0;
+        double multiplier = 0;
 
         if (!transform.lookupValue("type", type))
             throw Exception("Invalid transform type");
-        transform.lookupValue("angle", angle);
+        transform.lookupValue("multiplier", multiplier);
 
         TransformOptions options = {
             .ptr = ptr,
-            .angle = angle,
+            .multiplier = multiplier,
         };
         ptr = _factory.createTransform(type, options);
     }
@@ -196,7 +196,7 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
 
     std::vector<Math::Point3D> vertices = parseVertices(setting);
 
-    return {
+    Raytracer::PrimitiveOptions options{
         .center = Math::Point3D(center.x, center.y, center.z),
         .color = color,
         .transform = transform,
@@ -205,6 +205,9 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
         .vertices = vertices,
         .cylinderAxis = cylinderAxis
     };
+
+    options.transform->transformPrimitive(options);
+    return options;
 }
 
 Raytracer::LightOptions Raytracer::Config::parseLightOptions(const libconfig::Setting &setting) const

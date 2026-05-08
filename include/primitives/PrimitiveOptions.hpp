@@ -8,6 +8,7 @@
 #include <vector>
 
 namespace Raytracer {
+    class ITransform;
     struct PrimitiveOptions {
         // Globally used
         const Math::Point3D center;

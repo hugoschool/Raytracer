@@ -12,3 +12,7 @@ void Raytracer::ATransform::transformVector(Raytracer::Math::Vector3D &)
 void Raytracer::ATransform::transformPoint(Raytracer::Math::Point3D &)
 {
 }
+
+void Raytracer::ATransform::transformPrimitive(Raytracer::PrimitiveOptions &)
+{
+}

@@ -6,7 +6,7 @@
 namespace Raytracer {
     struct TransformOptions {
         std::shared_ptr<ITransform> ptr;
-        // Rotate
-        unsigned int angle;
+        // Scale
+        double multiplier;
     };
 }
