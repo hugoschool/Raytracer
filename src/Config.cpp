@@ -161,6 +161,10 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
         center = normal * position;
     }
 
+    double length = 0;
+
+    setting.lookupValue("length", length);
+
     Color color = parseColor(setting);
 
     std::vector<Math::Point3D> vertices = parseVertices(setting);
@@ -171,7 +175,8 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
         .radius = static_cast<double>(r),
         .normal = normal,
         .vertices = vertices,
-        .cylinderAxis = cylinderAxis
+        .cylinderAxis = cylinderAxis,
+        .length = length
     };
 }
 

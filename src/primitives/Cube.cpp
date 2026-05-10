@@ -16,7 +16,7 @@ Raytracer::HitInfo Raytracer::Cube::hits(Raytracer::Ray &ray)
 {
     double k;
     Math::Point3D coincide;
-    double half = _options.radius;
+    double half = _options.length;
     Math::Point3D bmin(_options.center.x - half, _options.center.y - half, _options.center.z - half);
     Math::Point3D bmax(_options.center.x + half, _options.center.y + half, _options.center.z + half);
     double tx1 = (bmin.x - ray.origin.x) / ray.direction.x;
@@ -37,7 +37,7 @@ Raytracer::HitInfo Raytracer::Cube::hits(Raytracer::Ray &ray)
 
 Raytracer::Math::Vector3D Raytracer::Cube::getNormal(const Math::Point3D point) const
 {
-    double half = _options.radius;
+    double half = _options.length;
     Math::Vector3D local = point - this->_options.center;
     Math::Vector3D normal(0, 0, 0);
     double epsilon = 1e-4;

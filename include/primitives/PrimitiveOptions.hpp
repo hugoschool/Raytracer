@@ -11,7 +11,7 @@ namespace Raytracer {
         const Math::Point3D center;
         Color color;
 
-        // Sphere
+        // Sphere & Cylinder
         double radius;
         // Plane
         const Math::Vector3D normal;
@@ -19,5 +19,7 @@ namespace Raytracer {
         std::vector<Math::Point3D> vertices;
         // Cylinder
         Math::Vector3D cylinderAxis;
+        // Cube
+        double length;
     };
 }
