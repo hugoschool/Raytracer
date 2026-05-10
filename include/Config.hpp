@@ -2,6 +2,7 @@
 
 #include "Camera.hpp"
 #include "Factory.hpp"
+#include "Math/Point3D.hpp"
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
 #include <functional>
@@ -30,8 +31,9 @@ namespace Raytracer {
             Factory _factory;
 
             Color parseColor(const libconfig::Setting &setting) const;
+            Math::Vector3D parseCylinderAxis(const libconfig::Setting &setting) const;
             PrimitiveOptions parsePrimitiveOptions(const libconfig::Setting &setting) const;
             LightOptions parseLightOptions(const libconfig::Setting &setting) const;
-            std::array<std::array<long long, 3>, 3> parseTriangle(const libconfig::Setting &setting) const;
+            std::vector<Math::Point3D> parseVertices(const libconfig::Setting &setting) const;
     };
 }

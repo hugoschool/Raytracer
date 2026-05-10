@@ -9,18 +9,12 @@
 #include "primitives/PrimitiveOptions.hpp"
 
 namespace Raytracer {
-    class Triangle : public APrimitive {
+    class Cylinder : public APrimitive {
         public:
-            Triangle(PrimitiveOptions options);
-            ~Triangle() = default;
+            Cylinder(PrimitiveOptions options);
+            ~Cylinder() = default;
 
             HitInfo hits(Ray &ray) override;
             Math::Vector3D getNormal(const Math::Point3D) const override;
-
-        private:
-            Math::Vector3D _normal;
-            Math::Point3D a;
-            Math::Point3D b;
-            Math::Point3D c;
     };
 }

@@ -7,11 +7,11 @@
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
-#include <array>
 #include <exception>
 #include <iostream>
 #include <libconfig.h++>
 #include <memory>
+#include <vector>
 
 Raytracer::Config::Config(const std::string fileName) : _fileName(fileName), _config(), _factory()
 {
@@ -80,21 +80,49 @@ Raytracer::Color Raytracer::Config::parseColor(const libconfig::Setting &setting
     };
 }
 
-std::array<std::array<long long, 3>, 3> Raytracer::Config::parseTriangle(const libconfig::Setting &setting) const
+std::vector<Raytracer::Math::Point3D> Raytracer::Config::parseVertices(const libconfig::Setting &initialSetting) const
 {
-    std::array<std::string, 3> vertices_name = {"a", "b", "c"};
-    std::array<std::array<long long, 3>, 3> vertices;
-    for (size_t i = 0; i < 3; i++) {
-        std::array<long long, 3> tmpArray;
-        if (!(
-            setting[vertices_name[i]].lookupValue("x", tmpArray[0]) &&
-            setting[vertices_name[i]].lookupValue("y", tmpArray[1]) &&
-            setting[vertices_name[i]].lookupValue("z", tmpArray[2])
-        ))
-            return vertices;
-        vertices[i] = tmpArray;
+    std::vector<Math::Point3D> vertices;
+
+    if (!initialSetting.exists("vertices"))
+        return vertices;
+
+    const libconfig::Setting &setting = initialSetting["vertices"];
+
+    for (const libconfig::Setting &vertice : setting) {
+        long long x = 0;
+        long long y = 0;
+        long long z = 0;
+
+        vertice.lookupValue("x", x);
+        vertice.lookupValue("y", y);
+        vertice.lookupValue("z", z);
+
+        vertices.push_back({
+            static_cast<double>(x),
+            static_cast<double>(y),
+            static_cast<double>(z)
+        });
     }
     return vertices;
+}
+
+Raytracer::Math::Vector3D Raytracer::Config::parseCylinderAxis(const libconfig::Setting &setting) const
+{
+    long long x;
+    long long y;
+    long long z;
+
+    if (setting["cylinderAxis"].lookupValue("x", x) == false) {
+        x = 0;
+    }
+    if (setting["cylinderAxis"].lookupValue("y", y) == false) {
+        y = 0;
+    }
+    if (setting["cylinderAxis"].lookupValue("z", z) == false) {
+        z = 0;
+    }
+    return Math::Vector3D(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z));
 }
 
 Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libconfig::Setting &setting) const
@@ -112,8 +140,14 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     setting.lookupValue("r", r);
     setting.lookupValue("axis", axisStr);
     setting.lookupValue("position", position);
+
     Math::Vector3D normal;
     Math::Vector3D center = Math::Vector3D(x,y,z);
+
+    Math::Vector3D cylinderAxis(0, 0, 0);
+    if (setting.exists("cylinderAxis")) {
+        cylinderAxis = parseCylinderAxis(setting);
+    }
 
     if (!axisStr.empty()) {
         if (axisStr == "X" || axisStr == "x")
@@ -126,23 +160,18 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
             throw Raytracer::Exception("Wrong plane direction");
         center = normal * position;
     }
+
     Color color = parseColor(setting);
-    std::array<std::array<long long, 3>, 3> triangle;
-    try {
-        triangle = this->parseTriangle(setting);
-    } catch(std::exception &e) {
-        triangle[0] = {0,0,0};
-        triangle[1] = {0,0,0};
-        triangle[2] = {0,0,0};
-    }
+
+    std::vector<Math::Point3D> vertices = parseVertices(setting);
+
     return {
         .center = Math::Point3D(center.x, center.y, center.z),
         .color = color,
         .radius = static_cast<double>(r),
         .normal = normal,
-        .a = Math::Point3D(triangle[0][0], triangle[0][1], triangle[0][2]),
-        .b = Math::Point3D(triangle[1][0], triangle[1][1], triangle[1][2]),
-        .c = Math::Point3D(triangle[2][0], triangle[2][1], triangle[2][2]),
+        .vertices = vertices,
+        .cylinderAxis = cylinderAxis
     };
 }
 

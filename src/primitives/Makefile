@@ -7,6 +7,10 @@ SPHERE_SRC	:=	$(COMMON_SRC) \
 SPHERE_OBJ	:=	$(SPHERE_SRC:.cpp=.o)
 SPHERE_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_sphere.so
 
+CYLINDER_SRC	:=	$(COMMON_SRC) \
+				Cylinder.cpp
+CYLINDER_OBJ	:=	$(CYLINDER_SRC:.cpp=.o)
+CYLINDER_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_cylinder.so
 
 PLANE_SRC	:=	$(COMMON_SRC) \
 				Plane.cpp
@@ -25,11 +29,13 @@ CUBE_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_cube.so
 
 include $(BASE_DIR)/common.mk
 
-all:	$(SPHERE_BIN) $(PLANE_BIN) $(TRIANGLE_BIN) $(CUBE_BIN)
+all:	$(SPHERE_BIN) $(PLANE_BIN) $(TRIANGLE_BIN) $(CUBE_BIN) $(CYLINDER_BIN)
 
 $(SPHERE_BIN):	$(SPHERE_OBJ)
 
-$(PLANE_BIN): $(PLANE_OBJ)
+$(CYLINDER_BIN):	$(CYLINDER_OBJ)
+
+$(PLANE_BIN):	$(PLANE_OBJ)
 
 $(TRIANGLE_BIN): $(TRIANGLE_OBJ)
 
@@ -40,13 +46,14 @@ clean:
 	$(RM) $(PLANE_OBJ)
 	$(RM) $(TRIANGLE_OBJ)
 	$(RM) $(CUBE_OBJ)
-
+	$(RM) $(CYLINDER_OBJ)
 
 fclean:	clean
 	$(RM) $(SPHERE_BIN)
 	$(RM) $(PLANE_BIN)
 	$(RM) $(TRIANGLE_BIN)
 	$(RM) $(CUBE_BIN)
+	$(RM) $(CYLINDER_BIN)
 
 re:	fclean all
 
