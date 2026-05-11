@@ -7,7 +7,7 @@ CPPFLAGS	:=	-I $(BASE_DIR)/include/
 LDLIBS	:=	-lconfig++
 
 ifeq ($(ENV), dev)
-	CXXFLAGS	+=	-fsanitize=address
+	CXXFLAGS	+=	-g -fsanitize=address
 	LDLIBS	+=	-fsanitize=address
 endif
 
@@ -54,7 +54,7 @@ BINARY	:=	raytracer
 
 all:	plugins $(BINARY)
 
-plugins: primitives lights materials
+plugins: primitives lights transforms materials
 
 primitives:
 	$(MAKE) -C src/primitives
@@ -65,17 +65,22 @@ lights:
 materials:
 	$(MAKE) -C src/materials
 
+transforms:
+	$(MAKE) -C src/transforms
+
 $(BINARY):	$(OBJ)
 	$(CXX) -o $(BINARY) $(OBJ) $(LDFLAGS) $(LDLIBS)
 
 clean:
 	$(MAKE) -C src/primitives clean
 	$(MAKE) -C src/lights clean
+	$(MAKE) -C src/transforms clean
 	$(RM) $(OBJ)
 
 fclean:	clean
 	$(MAKE) -C src/primitives fclean
 	$(MAKE) -C src/lights fclean
+	$(MAKE) -C src/transforms fclean
 	$(RM) $(BINARY)
 
 re:	fclean all

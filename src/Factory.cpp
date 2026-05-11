@@ -2,9 +2,12 @@
 #include "Utils.hpp"
 #include "materials/MaterialOptions.hpp"
 #include "primitives/PrimitiveOptions.hpp"
+#include "transforms/ITransform.hpp"
+#include "transforms/TransformOptions.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 
 Raytracer::Factory::Factory()
 {
@@ -60,6 +63,11 @@ void Raytracer::Factory::registerAllPlugins()
                 config,
                 loader->getSymbol<IMaterial, MaterialOptions>(std::string(Utils::materialEntrypoint))
             });
+        } else if (loader->symbolExists(std::string(Utils::transformEntrypoint))) {
+            _transforms.insert({
+                config,
+                loader->getSymbol<ITransform, TransformOptions>(std::string(Utils::transformEntrypoint))
+            });
         }
     }
 }
@@ -97,6 +105,20 @@ std::shared_ptr<Raytracer::IMaterial> Raytracer::Factory::createMaterial(const s
     try {
         std::function function = _materials.at({
             .category = std::string("material"),
+            .name = name
+        });
+
+        return DLLoader::turnFunctionIntoInstance(function, options);
+    } catch (const std::exception &e) {
+        throw Exception("Couldn't find " + name);
+    }
+}
+
+std::shared_ptr<Raytracer::ITransform> Raytracer::Factory::createTransform(const std::string name, TransformOptions options) const
+{
+    try {
+        std::function function = _transforms.at({
+            .category = std::string("transform"),
             .name = name
         });
 

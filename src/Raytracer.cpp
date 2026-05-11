@@ -8,7 +8,6 @@
 #include "lights/LightOptions.hpp"
 #include "primitives/IPrimitive.hpp"
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstddef>
 #include <iostream>
@@ -19,20 +18,20 @@
 #include <vector>
 
 #define OCCLUSION 50.0
+#include <thread>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     _sceneFile(sceneFile), _config(_sceneFile)
 {
+    _config.parseIncludes();
     _camera = _config.parseCamera();
     _primitives = _config.parsePrimitives();
-    _pixels.reserve(_camera.width * _camera.height);
     // To be changed, this is only temporary as this is highly unefficient and only works for sphere collisions
     std::sort(_primitives.begin(), _primitives.end(), [](std::shared_ptr<IPrimitive> &a, std::shared_ptr<IPrimitive> &b)
     {
         return a->getOptions().center.z > b->getOptions().center.z;
     });
     _lights = _config.parseLights();
-    _ignored_object = nullptr;
     _toggleAmbiantOcclusion = false;
 }
 
@@ -43,7 +42,7 @@ double Raytracer::Raytracer::random(double lower, double higher)
     return randomnb(randomEngine);
 }
 
-Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &obj, HitInfo &hit, size_t left_occlusion, Ray &r, bool isAmbiant)
+Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &obj, HitInfo &hit, size_t left_occlusion, Ray &r, bool isAmbiant, std::shared_ptr<IPrimitive> ignoredObj)
 {
     if (isAmbiant == true && obj->getOptions().material->getOptions().properties.reflexion == 0) {
         return Pixel(obj->getOptions().color, 0);
@@ -70,9 +69,9 @@ Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &ob
         newDirection = newDirection / newDirection.length();
         Ray newRay(newPosition, newDirection);
         double reflexion = obj->getOptions().material->getOptions().properties.reflexion;
-        _ignored_object = obj;
-        Pixel reflected_pixel = this->mainHandleHit(newRay, left_occlusion - 1, false);
-        _ignored_object = nullptr;
+        ignoredObj = obj;
+        Pixel reflected_pixel = this->mainHandleHit(newRay, left_occlusion - 1, false, ignoredObj);
+        ignoredObj = nullptr;
         pixel.color.r = pixel.color.r * (1-reflexion) + reflected_pixel.color.r * reflexion;
         pixel.color.g = pixel.color.g * (1-reflexion) + reflected_pixel.color.g * reflexion;
         pixel.color.b = pixel.color.b * (1-reflexion) + reflected_pixel.color.b * reflexion;
@@ -80,9 +79,9 @@ Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &ob
     }
     if (obj->getOptions().material->getOptions().properties.transparency >= 0.2) {
         double transparency = obj->getOptions().material->getOptions().properties.transparency;
-        _ignored_object = obj;
-        Pixel transparent_pixel = this->mainHandleHit(r, left_occlusion - 1, false);
-        _ignored_object = nullptr;
+        ignoredObj = obj;
+        Pixel transparent_pixel = this->mainHandleHit(r, left_occlusion - 1, false, ignoredObj);
+        ignoredObj = nullptr;
         pixel.color.r = pixel.color.r * (1-transparency) + transparent_pixel.color.r * transparency;
         pixel.color.g = pixel.color.g * (1-transparency) + transparent_pixel.color.g * transparency;
         pixel.color.b = pixel.color.b * (1-transparency) + transparent_pixel.color.b * transparency;
@@ -94,9 +93,9 @@ Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &ob
         double multiplierAverage = 0;
         for (size_t i = 0; i < OCCLUSION; i++) {
             Ray newRay(hit.getHitPos(), Math::Vector3D(normal.x + random(0,1) - 0.5, normal.y + random(0,1) - 0.5, normal.z + random(0,1) - 0.5));
-            _ignored_object = obj;
-            multiplierAverage += this->mainHandleHit(newRay, left_occlusion - 1, true).multiplier;
-            _ignored_object = nullptr;
+            ignoredObj = obj;
+            multiplierAverage += this->mainHandleHit(newRay, left_occlusion - 1, true, ignoredObj).multiplier;
+            ignoredObj = nullptr;
         }
         multiplierAverage /= (OCCLUSION);
         pixel.multiplier += multiplierAverage;
@@ -109,7 +108,7 @@ Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &ob
     return pixel;
 }
 
-Raytracer::Pixel Raytracer::Raytracer::mainHandleHit(Ray &r, size_t left_occlusion, bool isAmbiant)
+Raytracer::Pixel Raytracer::Raytracer::mainHandleHit(Ray &r, size_t left_occlusion, bool isAmbiant, std::shared_ptr<IPrimitive> ignoredObj)
 {
     double currLen = 0;
     double hasHit = false;
@@ -117,7 +116,7 @@ Raytracer::Pixel Raytracer::Raytracer::mainHandleHit(Ray &r, size_t left_occlusi
     HitInfo storedHit;
 
     for (std::shared_ptr<IPrimitive> &ptr : _primitives) {
-        if (_ignored_object != nullptr && ptr.get() == _ignored_object.get()) {
+        if (ignoredObj != nullptr && ptr.get() == ignoredObj.get()) {
             continue;
         }
         HitInfo hit = ptr->hits(r);
@@ -133,7 +132,7 @@ Raytracer::Pixel Raytracer::Raytracer::mainHandleHit(Ray &r, size_t left_occlusi
     if (!hasHit)
         return Pixel(Color(0,0,0), 1);
     // comme ça on fait le calcul qu'une fois qu'on a déterminé le plus proche;
-    return this->handleHit(obj, storedHit, left_occlusion, r, isAmbiant);
+    return this->handleHit(obj, storedHit, left_occlusion, r, isAmbiant, ignoredObj);
 }
 
 Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive> &s, HitInfo &hit)
@@ -193,23 +192,66 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
     return Pixel(color, multiplier);
 }
 
+void Raytracer::Raytracer::processImage(std::size_t yStart, std::size_t yEnd, std::size_t xStart, std::size_t xEnd)
+{
+    for (std::size_t y = yStart; y < yEnd; y++) {
+        for (std::size_t x = xStart; x < xEnd; x++) {
+            double u = static_cast<double>(x) / _camera.width;
+            double v = static_cast<double>(y) / _camera.height;
+            Ray r = _camera.ray(u, v);
+            std::shared_ptr<IPrimitive> ignoredObj;
+            this->_pixels[x].push_back(this->mainHandleHit(r, 10, false, ignoredObj)); // le nombre de rebonds est random
+        }
+    }
+}
+
 void Raytracer::Raytracer::exportPPM()
 {
     std::cout << "P3" << std::endl;
     std::cout << _camera.width << " " << _camera.height << std::endl;
     std::cout << "255" << std::endl;
 
-    for (std::size_t y = 0; y < _camera.height; y++) {
-        for (std::size_t x = 0; x < _camera.width; x++) {
-            double u = static_cast<double>(x) / _camera.width;
-            double v = static_cast<double>(y) / _camera.height;
-            Ray r = _camera.ray(u, v);
-            this->_pixels.push_back(this->mainHandleHit(r, 10, false)); // le nombre de rebonds est random
-        }
+    unsigned int nproc = std::thread::hardware_concurrency();
+
+    // In case hardware_concurrency fails
+    if (nproc == 0)
+        nproc = 1;
+
+    std::vector<std::thread> threads;
+    threads.reserve(nproc);
+
+    unsigned int xStart = 0;
+    unsigned int interval = std::floorf(static_cast<float>(_camera.width) / nproc);
+    unsigned int xEnd = interval;
+    unsigned int compensation = _camera.width % nproc;
+
+    _pixels.reserve(_camera.width);
+
+    for (unsigned int x = 0; x < _camera.width; x++) {
+        std::vector<Pixel> line;
+        line.reserve(_camera.height);
+        _pixels.push_back(line);
     }
-    for (auto &it: _pixels) {
-        std::cout << static_cast<unsigned int>(it.color.r * it.multiplier) << " " 
-        << static_cast<unsigned int>(it.color.g * it.multiplier) << " "
-        << static_cast<unsigned int>(it.color.b * it.multiplier) << std::endl;
+
+    for (unsigned int i = 0; i < nproc; i++) {
+        threads.push_back(std::thread(&Raytracer::processImage, this, 0, _camera.height, xStart, xEnd));
+        xStart = xEnd;
+        xEnd += interval;
+        if (i + 1 == nproc - 1)
+            xEnd += compensation;
+    }
+
+    for (std::thread &thread : threads) {
+        thread.join();
+    }
+
+    for (unsigned int y = 0; y < _camera.height; y++) {
+        for (unsigned int x = 0; x < _camera.width; x++) {
+            Pixel pixel = _pixels.at(x).at(y);
+            pixel.color = pixel.color * pixel.multiplier;
+            std::cout << static_cast<unsigned int>(pixel.color.r) << " "
+            << static_cast<unsigned int>(pixel.color.g) << " "
+            << static_cast<unsigned int>(pixel.color.b) << std::endl;
+        }
     }
 }
