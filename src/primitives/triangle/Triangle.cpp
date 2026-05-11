@@ -57,5 +57,5 @@ Raytracer::HitInfo Raytracer::Triangle::hits(Raytracer::Ray &ray)
 
 Raytracer::Math::Vector3D Raytracer::Triangle::getNormal(const Math::Point3D) const
 {
-    return _normal;
+    return _normal * -1;
 }
