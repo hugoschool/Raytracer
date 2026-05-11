@@ -204,7 +204,7 @@ void Raytracer::Raytracer::exportPPM()
             double u = static_cast<double>(x) / _camera.width;
             double v = static_cast<double>(y) / _camera.height;
             Ray r = _camera.ray(u, v);
-            this->_pixels.push_back(this->mainHandleHit(r, 10, false)); // comment déterminer le nombre de rebonds?
+            this->_pixels.push_back(this->mainHandleHit(r, 10, false)); // le nombre de rebonds est random
         }
     }
     for (auto &it: _pixels) {
