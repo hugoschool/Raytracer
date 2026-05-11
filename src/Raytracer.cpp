@@ -29,7 +29,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
         return a->getOptions().center.z > b->getOptions().center.z;
     });
     _lights = _config.parseLights();
-    _toggleAmbiantOcclusion = true;
+    _toggleAmbiantOcclusion = false;
 }
 
 double Raytracer::Raytracer::random(double lower, double higher)
