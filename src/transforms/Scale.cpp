@@ -37,6 +37,7 @@ void Raytracer::Scale::transformPrimitive(Raytracer::PrimitiveOptions &options)
         return;
 
     options.radius *= _options.multiplier;
+    options.length *= _options.multiplier;
     scaleTriangle(options.vertices);
 }
 
