@@ -73,12 +73,6 @@ Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &ob
         _ignored_object = obj;
         Pixel reflected_pixel = this->mainHandleHit(newRay, left_occlusion - 1, false);
         _ignored_object = nullptr;
-        if (reflected_pixel.multiplier != 0) {
-            // std::cerr << "old Direction: " << r.direction.x << " " << r.direction.y << " " << r.direction.z << std::endl;
-            std::cerr << "newPosition: " << newRay.origin.x << " " << newRay.origin.y << " " << newRay.origin.z << std::endl;
-
-            std::cerr << "new: " << newDirection.x << " " << newDirection.y << " " << newDirection.z << std::endl;
-        }
         pixel.color.r = pixel.color.r * (1-reflexion) + reflected_pixel.color.r * reflexion;
         pixel.color.g = pixel.color.g * (1-reflexion) + reflected_pixel.color.g * reflexion;
         pixel.color.b = pixel.color.b * (1-reflexion) + reflected_pixel.color.b * reflexion;
@@ -128,13 +122,6 @@ Raytracer::Pixel Raytracer::Raytracer::mainHandleHit(Ray &r, size_t left_occlusi
         }
         HitInfo hit = ptr->hits(r);
         if (hit.hasHit()) {
-            if (r.direction.dot(r.origin - hit.getHitPos()) < 0)
-                continue;
-            // if ((_camera.origin - hit.getHitPos()).dot(r.direction) < 0) // BUG sur le
-            //     continue;
-            std::cerr << "ray origin: " << r.origin.x << " " << r.origin.y << " " << r.origin.z << std::endl;
-
-            std::cerr << "pos: " << hit.getHitPos().x << " " << hit.getHitPos().y << " " << hit.getHitPos().z << std::endl;
             if (currLen != 0 && currLen < (hit.getHitPos() - r.origin).length())
                 continue;
             currLen = (hit.getHitPos() - r.origin).length();
@@ -195,20 +182,12 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
         return Pixel(color, 0);
     }
     double multiplier = 0;
-    double r = 0;
-    double g = 0;
-    double b = 0;
     for (auto &it: lightColors) {
         multiplier += it.multiplier;
-        r += std::pow(static_cast<double>(it.color.r) * it.multiplier, 2);
-        g += std::pow(static_cast<double>(it.color.g) * it.multiplier, 2);
-        b += std::pow(static_cast<double>(it.color.b) * it.multiplier, 2);
+        color.r = std::max(color.r, it.color.r);
+        color.g = std::max(color.g, it.color.g);
+        color.b = std::max(color.b, it.color.b);
     }
-    // color.r = static_cast<unsigned char>(std::sqrt(r / lightColors.size()));
-    // color.g = static_cast<unsigned char>(std::sqrt(g / lightColors.size()));
-    // color.b = static_cast<unsigned char>(std::sqrt(b / lightColors.size()));
-    // std::cerr << "color: " << (int)color.r << " " << (int)color.g << " " << (int)color.b << std::endl;
-    // std::cerr << "squared col: " << r << " " << g << " " << b << std::endl;
     // multiplier /= _lights.size();
     multiplier = std::min(multiplier, 1.0);
     return Pixel(color, multiplier);
