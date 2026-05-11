@@ -7,7 +7,7 @@ CPPFLAGS	:=	-I $(BASE_DIR)/include/
 LDLIBS	:=	-lconfig++
 
 ifeq ($(ENV), dev)
-	CXXFLAGS	+=	-fsanitize=address
+	CXXFLAGS	+=	-g -fsanitize=address
 	LDLIBS	+=	-fsanitize=address
 endif
 
