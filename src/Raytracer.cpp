@@ -4,6 +4,7 @@
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "Ray.hpp"
+#include "Utils.hpp"
 #include "lights/ILight.hpp"
 #include "lights/LightOptions.hpp"
 #include "primitives/IPrimitive.hpp"
@@ -16,8 +17,6 @@
 #include <tuple>
 #include <utility>
 #include <vector>
-
-#define OCCLUSION 50.0
 #include <thread>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
@@ -91,13 +90,13 @@ Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &ob
         // probablement pas la normal qu'on devrait utiliser ici, temporaire
         // utiliser la lambertian distribution plutôt que ce qu'on fait actuellement;
         double multiplierAverage = 0;
-        for (size_t i = 0; i < OCCLUSION; i++) {
+        for (size_t i = 0; i < Utils::occlusion; i++) {
             Ray newRay(hit.getHitPos(), Math::Vector3D(normal.x + random(0,1) - 0.5, normal.y + random(0,1) - 0.5, normal.z + random(0,1) - 0.5));
             ignoredObj = obj;
             multiplierAverage += this->mainHandleHit(newRay, left_occlusion - 1, true, ignoredObj).multiplier;
             ignoredObj = nullptr;
         }
-        multiplierAverage /= (OCCLUSION);
+        multiplierAverage /= (Utils::occlusion);
         pixel.multiplier += multiplierAverage;
         pixel.multiplier = std::min(pixel.multiplier, 1.0);
     }

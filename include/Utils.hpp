@@ -10,4 +10,6 @@ namespace Raytracer::Utils {
 
     // Related to the binary path of the raytracer.
     constexpr std::string_view pluginsDir("./plugins");
+
+    constexpr double occlusion = 50.0;
 }
