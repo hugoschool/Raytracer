@@ -27,8 +27,3 @@ Raytracer::Math::Vector3D Raytracer::Plane::getNormal(const Math::Point3D) const
 {
     return _options.normal;
 }
-
-extern "C" Raytracer::IPrimitive *primitiveEntrypoint(Raytracer::PrimitiveOptions options)
-{
-    return new Raytracer::Plane(options);
-}

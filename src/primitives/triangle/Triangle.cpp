@@ -59,8 +59,3 @@ Raytracer::Math::Vector3D Raytracer::Triangle::getNormal(const Math::Point3D) co
 {
     return _normal;
 }
-
-extern "C" Raytracer::IPrimitive *primitiveEntrypoint(Raytracer::PrimitiveOptions options)
-{
-    return new Raytracer::Triangle(options);
-}

@@ -260,6 +260,7 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     long long r = 0;
     std::string axisStr;
     long long position;
+    std::string objFileName;
 
     setting.lookupValue("x", x);
     setting.lookupValue("y", y);
@@ -267,6 +268,7 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     setting.lookupValue("r", r);
     setting.lookupValue("axis", axisStr);
     setting.lookupValue("position", position);
+    setting.lookupValue("file", objFileName);
 
     TransformOptions transformOptions;
     std::shared_ptr<ITransform> transform = _factory.createTransform("default", transformOptions);
@@ -309,7 +311,8 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
         .normal = normal,
         .vertices = vertices,
         .cylinderAxis = cylinderAxis,
-        .length = length
+        .length = length,
+        .fileName = objFileName
     };
 
     options.transform->transform(options);

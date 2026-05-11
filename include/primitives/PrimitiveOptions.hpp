@@ -5,6 +5,7 @@
 #include "Math/Vector3D.hpp"
 #include "transforms/ITransform.hpp"
 #include <memory>
+#include <string>
 #include <vector>
 #include "materials/IMaterial.hpp"
 #include <memory>
@@ -28,5 +29,8 @@ namespace Raytracer {
         Math::Vector3D cylinderAxis;
         // Cube
         double length;
+
+        // Obj
+        std::string fileName;
     };
 }
