@@ -50,8 +50,3 @@ Raytracer::Math::Vector3D Raytracer::Cube::getNormal(const Math::Point3D point) 
         normal = Math::Vector3D(0, 0, local.z > 0 ? 1 : -1);
     return normal;
 }
-
-extern "C" Raytracer::IPrimitive *primitiveEntrypoint(Raytracer::PrimitiveOptions options)
-{
-    return new Raytracer::Cube(options);
-}
