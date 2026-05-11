@@ -7,6 +7,8 @@
 #include "lights/ILight.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
+#include "transforms/ITransform.hpp"
+#include "transforms/TransformOptions.hpp"
 #include <exception>
 #include <iostream>
 #include <libconfig.h++>
@@ -125,6 +127,31 @@ Raytracer::Math::Vector3D Raytracer::Config::parseCylinderAxis(const libconfig::
     return Math::Vector3D(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z));
 }
 
+std::shared_ptr<Raytracer::ITransform> Raytracer::Config::parseTransform(
+    const libconfig::Setting &setting,
+    std::shared_ptr<ITransform> ptr
+) const
+{
+    if (!setting.exists("transforms"))
+        return ptr;
+
+    for (const libconfig::Setting &transform : setting["transforms"]) {
+        std::string type;
+        double multiplier = 0;
+
+        if (!transform.lookupValue("type", type))
+            throw Exception("Invalid transform type");
+        transform.lookupValue("multiplier", multiplier);
+
+        TransformOptions options = {
+            .ptr = ptr,
+            .multiplier = multiplier,
+        };
+        ptr = _factory.createTransform(type, options);
+    }
+    return ptr;
+}
+
 Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libconfig::Setting &setting) const
 {
     long long x = 0;
@@ -140,6 +167,10 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     setting.lookupValue("r", r);
     setting.lookupValue("axis", axisStr);
     setting.lookupValue("position", position);
+
+    TransformOptions transformOptions;
+    std::shared_ptr<ITransform> transform = _factory.createTransform("default", transformOptions);
+    transform = parseTransform(setting, transform);
 
     Math::Vector3D normal;
     Math::Vector3D center = Math::Vector3D(x,y,z);
@@ -165,14 +196,18 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
 
     std::vector<Math::Point3D> vertices = parseVertices(setting);
 
-    return {
+    Raytracer::PrimitiveOptions options{
         .center = Math::Point3D(center.x, center.y, center.z),
         .color = color,
+        .transform = transform,
         .radius = static_cast<double>(r),
         .normal = normal,
         .vertices = vertices,
         .cylinderAxis = cylinderAxis
     };
+
+    options.transform->transformPrimitive(options);
+    return options;
 }
 
 Raytracer::LightOptions Raytracer::Config::parseLightOptions(const libconfig::Setting &setting) const
