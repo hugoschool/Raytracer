@@ -8,17 +8,20 @@
 #include "lights/LightOptions.hpp"
 #include "primitives/IPrimitive.hpp"
 #include <algorithm>
+#include <array>
+#include <cmath>
 #include <cstddef>
 #include <iostream>
 #include <memory>
 #include <random>
+#include <tuple>
 #include <utility>
 #include <vector>
 
-#define OCCLUSION 10
+#define OCCLUSION 50.0
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(_sceneFile), _maxilluminance(1.0)
+    _sceneFile(sceneFile), _config(_sceneFile)
 {
     _camera = _config.parseCamera();
     _primitives = _config.parsePrimitives();
@@ -30,72 +33,89 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     });
     _lights = _config.parseLights();
     _ignored_object = nullptr;
+    _toggleAmbiantOcclusion = false;
 }
-double random(double lower, double higher)
+
+double Raytracer::Raytracer::random(double lower, double higher)
 {
     std::uniform_real_distribution<double> randomnb(lower,higher);
     std::default_random_engine randomEngine;
     return randomnb(randomEngine);
 }
 
-
-Raytracer::Color Raytracer::Raytracer::handleHitOther(std::shared_ptr<IPrimitive> &obj, HitInfo &hit, size_t left_occlusion, Ray &r)
+Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &obj, HitInfo &hit, size_t left_occlusion, Ray &r, bool isAmbiant)
 {
-
-    // if (this->_colorCache.contains(std::tuple(hit.getHitPos().x, hit.getHitPos().y, hit.getHitPos().z)) == true) {
-        // return this->_colorCache.at(std::tuple(hit.getHitPos().x, hit.getHitPos().y, hit.getHitPos().z));
-    // }
-    Color color = this->hitIlluminance(obj, hit);
+    if (isAmbiant == true && obj->getOptions().material->getOptions().properties.reflexion == 0) {
+        return Pixel(obj->getOptions().color, 0);
+    }
+    if (this->_colorCache.contains(std::tuple(hit.getHitPos().x, hit.getHitPos().y, hit.getHitPos().z)) == true && this->_colorCache.at(std::tuple(hit.getHitPos().x, hit.getHitPos().y, hit.getHitPos().z)).second <= left_occlusion) {
+        Pixel pixel = this->_colorCache.at(std::tuple(hit.getHitPos().x, hit.getHitPos().y, hit.getHitPos().z)).first;
+        if (isAmbiant == true)
+            pixel.multiplier *= obj->getOptions().material->getOptions().properties.reflexion;
+        return pixel;
+    }
+    Pixel pixel = this->hitIlluminance(obj, hit);
 
     if (left_occlusion == 0) {
-        return color;
+        if (isAmbiant == true)
+            pixel.multiplier *= obj->getOptions().material->getOptions().properties.reflexion;
+        return pixel;
     }
 
     Math::Vector3D normal = obj->getNormal(hit.getHitPos());
-    Math::Vector3D newDirection = (r.direction) - normal * 2 * ((r.direction).dot(normal));
-    Math::Point3D newPosition = hit.getHitPos() + normal * 1; // pour éviter que le vecteur ne se retouche
-    Ray newRay(newPosition, newDirection);
-    // test pour vérifier la transparence
-    _ignored_object = obj;
-    Color reflected_color = this->mainHandleHit(newRay, left_occlusion - 1);
-    _ignored_object = nullptr;
-    // pour une reflective de 50%
-    if (reflected_color.r == 0 && reflected_color.b == 0 && reflected_color.g == 0)
-        return color;
-    color.r = color.r * 0.5 + reflected_color.r * 0.5;
-    color.g = color.g * 0.5 + reflected_color.g * 0.5;
-    color.b = color.b * 0.5 + reflected_color.b * 0.5;
-    return color;
-    // probablement pas la normal qu'on devrait utiliser ici, temporaire
-    // utiliser la lambertian distribution plutôt que ce qu'on fait actuellement;
-    // for (size_t i = 0; i < OCCLUSION; i++) {
-    //     Ray newRay(hit.getHitPos(), Math::Vector3D(normal.x + random(0,1) - 0.5, normal.y + random(0,1) - 0.5, normal.z + random(0,1) - 0.5));
-    //     allColors.push_back(this->mainHandleHit(newRay, left_occlusion - 1));
-    // }
-    // double red = 0;
-    // double blue = 0;
-    // double green = 0;
-    // double allMultiplier = 0;
-    // for (auto &it: allColors)  {
-    //     red += it.multiplier * it.color.r;
-    //     blue += it.multiplier * it.color.b;
-    //     green += it.multiplier * it.color.g;
-    //     allMultiplier += it.multiplier;
-    // }
-    // allMultiplier /= allColors.size();
-    // double tmpMax = std::max(std::max(red, blue), green);
-    // red /= tmpMax;
-    // blue /= tmpMax;
-    // green /= tmpMax;
-    // //changer les valeurs de multiplication en fonction du % d'occlusion qu'on veut
-    // color.r = color.r * 0.70 * multiplier + red * 0.30 * allMultiplier;
-    // color.g = color.g * 0.70 * multiplier + green * 0.30 * allMultiplier;
-    // color.b = color.b * 0.70 * multiplier + blue * 0.30 * allMultiplier;
-    // multiplier = (multiplier + allMultiplier) / 2;
-    // this->_colorCache.emplace(std::tuple(hit.getHitPos().x, hit.getHitPos().y, hit.getHitPos().z), pixel);
+
+    if (obj->getOptions().material->getOptions().properties.reflexion >= 0.20) {
+        Math::Vector3D newDirection = (r.direction) - normal * 2 * ((r.direction).dot(normal));
+        Math::Point3D newPosition = hit.getHitPos() + newDirection * 0; // pour éviter que le vecteur ne se retouche
+        newDirection = newDirection / newDirection.length();
+        Ray newRay(newPosition, newDirection);
+        double reflexion = obj->getOptions().material->getOptions().properties.reflexion;
+        _ignored_object = obj;
+        Pixel reflected_pixel = this->mainHandleHit(newRay, left_occlusion - 1, false);
+        _ignored_object = nullptr;
+        if (reflected_pixel.multiplier != 0) {
+            // std::cerr << "old Direction: " << r.direction.x << " " << r.direction.y << " " << r.direction.z << std::endl;
+            std::cerr << "newPosition: " << newRay.origin.x << " " << newRay.origin.y << " " << newRay.origin.z << std::endl;
+
+            std::cerr << "new: " << newDirection.x << " " << newDirection.y << " " << newDirection.z << std::endl;
+        }
+        pixel.color.r = pixel.color.r * (1-reflexion) + reflected_pixel.color.r * reflexion;
+        pixel.color.g = pixel.color.g * (1-reflexion) + reflected_pixel.color.g * reflexion;
+        pixel.color.b = pixel.color.b * (1-reflexion) + reflected_pixel.color.b * reflexion;
+        pixel.multiplier = pixel.multiplier * (1-reflexion) + reflected_pixel.multiplier * reflexion;
+    }
+    if (obj->getOptions().material->getOptions().properties.transparency >= 0.2) {
+        double transparency = obj->getOptions().material->getOptions().properties.transparency;
+        _ignored_object = obj;
+        Pixel transparent_pixel = this->mainHandleHit(r, left_occlusion - 1, false);
+        _ignored_object = nullptr;
+        pixel.color.r = pixel.color.r * (1-transparency) + transparent_pixel.color.r * transparency;
+        pixel.color.g = pixel.color.g * (1-transparency) + transparent_pixel.color.g * transparency;
+        pixel.color.b = pixel.color.b * (1-transparency) + transparent_pixel.color.b * transparency;
+        pixel.multiplier = pixel.multiplier * (1-transparency) + transparent_pixel.multiplier * transparency;
+    }
+    if (_toggleAmbiantOcclusion == true) {
+        // probablement pas la normal qu'on devrait utiliser ici, temporaire
+        // utiliser la lambertian distribution plutôt que ce qu'on fait actuellement;
+        double multiplierAverage = 0;
+        for (size_t i = 0; i < OCCLUSION; i++) {
+            Ray newRay(hit.getHitPos(), Math::Vector3D(normal.x + random(0,1) - 0.5, normal.y + random(0,1) - 0.5, normal.z + random(0,1) - 0.5));
+            _ignored_object = obj;
+            multiplierAverage += this->mainHandleHit(newRay, left_occlusion - 1, true).multiplier;
+            _ignored_object = nullptr;
+        }
+        multiplierAverage /= (OCCLUSION);
+        pixel.multiplier += multiplierAverage;
+        pixel.multiplier = std::min(pixel.multiplier, 1.0);
+    }
+    if (isAmbiant == true) {
+        pixel.multiplier *= obj->getOptions().material->getOptions().properties.reflexion;
+    }
+    this->_colorCache.emplace(std::pair(std::tuple(hit.getHitPos().x, hit.getHitPos().y, hit.getHitPos().z), std::pair(pixel, left_occlusion)));
+    return pixel;
 }
 
-Raytracer::Color Raytracer::Raytracer::mainHandleHit(Ray &r, size_t left_occlusion)
+Raytracer::Pixel Raytracer::Raytracer::mainHandleHit(Ray &r, size_t left_occlusion, bool isAmbiant)
 {
     double currLen = 0;
     double hasHit = false;
@@ -108,8 +128,15 @@ Raytracer::Color Raytracer::Raytracer::mainHandleHit(Ray &r, size_t left_occlusi
         }
         HitInfo hit = ptr->hits(r);
         if (hit.hasHit()) {
+            if (r.direction.dot(r.origin - hit.getHitPos()) < 0)
+                continue;
+            // if ((_camera.origin - hit.getHitPos()).dot(r.direction) < 0) // BUG sur le
+            //     continue;
+            std::cerr << "ray origin: " << r.origin.x << " " << r.origin.y << " " << r.origin.z << std::endl;
+
+            std::cerr << "pos: " << hit.getHitPos().x << " " << hit.getHitPos().y << " " << hit.getHitPos().z << std::endl;
             if (currLen != 0 && currLen < (hit.getHitPos() - r.origin).length())
-                    continue;
+                continue;
             currLen = (hit.getHitPos() - r.origin).length();
             hasHit = true;
             obj = ptr;
@@ -117,17 +144,17 @@ Raytracer::Color Raytracer::Raytracer::mainHandleHit(Ray &r, size_t left_occlusi
         }
     }
     if (!hasHit)
-        return Color(0,0,0);
+        return Pixel(Color(0,0,0), 1);
     // comme ça on fait le calcul qu'une fois qu'on a déterminé le plus proche;
-    return this->handleHitOther(obj, storedHit, left_occlusion, r);
+    return this->handleHit(obj, storedHit, left_occlusion, r, isAmbiant);
 }
 
-Raytracer::Color Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive> &s, HitInfo &hit)
+Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive> &s, HitInfo &hit)
 {
     Color color = hit.getColor();
-    int r = 0;
-    int g = 0;
-    int b = 0;
+    Color white(255,255,255);
+    std::vector<Pixel> lightColors;
+
     for (std::shared_ptr<ILight> &light: _lights) {
         Math::Vector3D light_Vector = light->getOptions().position - hit.getHitPos();
         Math::Vector3D normal = s->getNormal(hit.getHitPos());
@@ -135,8 +162,9 @@ Raytracer::Color Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
         double tmpMultiplier = light_Vector.cosine(normal);
         if (tmpMultiplier <= 0)
             continue;
-        Math::Vector3D colorVector = (Math::Vector3D(color) / Math::Vector3D(color).length()) * tmpMultiplier;
-        Color tmpColor = Color(colorVector.x * lightColor.r, colorVector.y * lightColor.g, colorVector.z * lightColor.b);
+
+        Color tmpColor = white - color;
+        tmpColor = Color(std::max(lightColor.r - tmpColor.r, 0), std::max(lightColor.g - tmpColor.g, 0), std::max(lightColor.b - tmpColor.b, 0));
         Ray lightToHit(light->getOptions().position, light_Vector);
         for (std::shared_ptr<IPrimitive> &tmpPrimitive: _primitives) {
             if (tmpPrimitive.get() == s.get())
@@ -151,14 +179,39 @@ Raytracer::Color Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
             }
             if (light_Vector.dot(lightToNewObject) < 0) // On calcule la norme pour savoir si les vecteurs sont opposés
                 continue;
+            if (tmpPrimitive->getOptions().material->getOptions().properties.transparency > 0) {
+                tmpMultiplier *= tmpPrimitive->getOptions().material->getOptions().properties.transparency;
+                continue;
+            }
             tmpMultiplier = 0.0;
             break;
         }
-        r += tmpColor.r;
-        g += tmpColor.g;
-        b += tmpColor.b;
+        if (tmpMultiplier <= 0.01) {
+            continue;
+        }
+        lightColors.push_back(Pixel(tmpColor, tmpMultiplier));
     }
-    return Color(static_cast<unsigned char>(std::min(r, 255)), static_cast<unsigned short>(std::min(g, 255)), static_cast<unsigned short>(std::min(b,255)));
+    if (lightColors.size() == 0) {
+        return Pixel(color, 0);
+    }
+    double multiplier = 0;
+    double r = 0;
+    double g = 0;
+    double b = 0;
+    for (auto &it: lightColors) {
+        multiplier += it.multiplier;
+        r += std::pow(static_cast<double>(it.color.r) * it.multiplier, 2);
+        g += std::pow(static_cast<double>(it.color.g) * it.multiplier, 2);
+        b += std::pow(static_cast<double>(it.color.b) * it.multiplier, 2);
+    }
+    // color.r = static_cast<unsigned char>(std::sqrt(r / lightColors.size()));
+    // color.g = static_cast<unsigned char>(std::sqrt(g / lightColors.size()));
+    // color.b = static_cast<unsigned char>(std::sqrt(b / lightColors.size()));
+    // std::cerr << "color: " << (int)color.r << " " << (int)color.g << " " << (int)color.b << std::endl;
+    // std::cerr << "squared col: " << r << " " << g << " " << b << std::endl;
+    // multiplier /= _lights.size();
+    multiplier = std::min(multiplier, 1.0);
+    return Pixel(color, multiplier);
 }
 
 void Raytracer::Raytracer::exportPPM()
@@ -172,12 +225,12 @@ void Raytracer::Raytracer::exportPPM()
             double u = static_cast<double>(x) / _camera.width;
             double v = static_cast<double>(y) / _camera.height;
             Ray r = _camera.ray(u, v);
-            this->_pixels.push_back(this->mainHandleHit(r, 5)); // nombre random pour l'instant
+            this->_pixels.push_back(this->mainHandleHit(r, 10, false)); // comment déterminer le nombre de rebonds?
         }
     }
     for (auto &it: _pixels) {
-        std::cout << static_cast<unsigned int>(it.r) << " " 
-        << static_cast<unsigned int>(it.g) << " "
-        << static_cast<unsigned int>(it.b) << std::endl;
+        std::cout << static_cast<unsigned int>(it.color.r * it.multiplier) << " " 
+        << static_cast<unsigned int>(it.color.g * it.multiplier) << " "
+        << static_cast<unsigned int>(it.color.b * it.multiplier) << std::endl;
     }
 }

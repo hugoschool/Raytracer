@@ -114,7 +114,7 @@ Raytracer::MaterialOptions Raytracer::Config::parseMaterialOptions(const libconf
     return {
         .color = Color(),
         .properties = {
-            .opacity = 0.0,
+            .transparency = 0.0,
             .reflexion = 0.0,
             .refraction = 0.0
         }

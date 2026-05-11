@@ -4,7 +4,7 @@
 
 namespace Raytracer {
     struct MaterialProperties {
-        double opacity;
+        double transparency;
         double reflexion;
         double refraction;
     };

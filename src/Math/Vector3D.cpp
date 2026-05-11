@@ -92,7 +92,6 @@ void Raytracer::Math::Vector3D::operator*=(const double nb)
     this->z *= nb;
 }
 
-
 void Raytracer::Math::Vector3D::operator/=(const Vector3D &vector)
 {
     if (vector.x == 0 || vector.y == 0 || vector.z == 0) {

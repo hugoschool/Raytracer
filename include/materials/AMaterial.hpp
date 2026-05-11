@@ -12,7 +12,7 @@ namespace Raytracer {
 
             MaterialOptions getOptions() const override;
 
-        private:
+        protected:
             MaterialOptions _options;
     };
 }
