@@ -31,7 +31,7 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
         return a->getOptions().center.z > b->getOptions().center.z;
     });
     _lights = _config.parseLights();
-    _toggleAmbiantOcclusion = false;
+    _toggleAmbiantOcclusion = true;
 }
 
 double Raytracer::Raytracer::random(double lower, double higher)
@@ -45,12 +45,6 @@ Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &ob
 {
     if (isAmbiant == true && obj->getOptions().material->getOptions().properties.reflexion == 0) {
         return Pixel(obj->getOptions().color, 0);
-    }
-    if (this->_colorCache.contains(std::tuple(hit.getHitPos().x, hit.getHitPos().y, hit.getHitPos().z)) == true && this->_colorCache.at(std::tuple(hit.getHitPos().x, hit.getHitPos().y, hit.getHitPos().z)).second <= left_occlusion) {
-        Pixel pixel = this->_colorCache.at(std::tuple(hit.getHitPos().x, hit.getHitPos().y, hit.getHitPos().z)).first;
-        if (isAmbiant == true)
-            pixel.multiplier *= obj->getOptions().material->getOptions().properties.reflexion;
-        return pixel;
     }
     Pixel pixel = this->hitIlluminance(obj, hit);
 
@@ -103,7 +97,6 @@ Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &ob
     if (isAmbiant == true) {
         pixel.multiplier *= obj->getOptions().material->getOptions().properties.reflexion;
     }
-    this->_colorCache.emplace(std::pair(std::tuple(hit.getHitPos().x, hit.getHitPos().y, hit.getHitPos().z), std::pair(pixel, left_occlusion)));
     return pixel;
 }
 
