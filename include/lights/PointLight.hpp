@@ -9,5 +9,7 @@ namespace Raytracer {
             PointLight() = delete;
             PointLight(LightOptions options);
             ~PointLight() = default;
+
+            Math::Vector3D getDirection(Math::Point3D) const override;
     };
 }

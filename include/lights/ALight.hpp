@@ -11,8 +11,9 @@ namespace Raytracer {
             ~ALight() = default;
 
             LightOptions getOptions() const override;
+            Math::Vector3D getDirection(Math::Point3D) const override;
 
-        private:
+        protected:
             LightOptions _options;
     };
 }

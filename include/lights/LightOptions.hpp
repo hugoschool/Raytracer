@@ -6,7 +6,9 @@
 namespace Raytracer {
     struct LightOptions {
         // Globally used
-        const Math::Point3D position;
         Color color;
+
+        // Point
+        const Math::Point3D position;
     };
 }

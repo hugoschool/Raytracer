@@ -132,7 +132,7 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
     std::vector<Pixel> lightColors;
 
     for (std::shared_ptr<ILight> &light: _lights) {
-        Math::Vector3D light_Vector = light->getOptions().position - hit.getHitPos();
+        Math::Vector3D light_Vector = light->getDirection(hit.getHitPos());
         Math::Vector3D normal = s->getNormal(hit.getHitPos());
         Color lightColor = light->getOptions().color;
         double tmpMultiplier = light_Vector.cosine(normal);
@@ -149,7 +149,7 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
             if (!tmpHitInfo.hasHit())
                 continue;
             // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
-            Math::Vector3D lightToNewObject = light->getOptions().position - tmpHitInfo.getHitPos();
+            Math::Vector3D lightToNewObject = light->getDirection(tmpHitInfo.getHitPos());
             if (lightToNewObject.length() > light_Vector.length()) {
                 continue;
             }

@@ -305,8 +305,8 @@ Raytracer::LightOptions Raytracer::Config::parseLightOptions(const libconfig::Se
     setting.lookupValue("z", z);
 
     return {
-        .position = Math::Point3D(x, y, z),
         .color = Color(255,255,255),
+        .position = Math::Point3D(x, y, z),
     };
 }
 
