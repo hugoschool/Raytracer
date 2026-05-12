@@ -35,7 +35,6 @@ namespace Raytracer {
                 Vector3D operator*(const Vector3D &vector) const;
                 Vector3D operator/(const Vector3D &vector) const;
                 Vector3D operator/(const double &val) const;
-                Color operator*(Color &other) const;
                 Vector3D operator*(const double nb) const;
                 void operator*=(const double nb);
 
