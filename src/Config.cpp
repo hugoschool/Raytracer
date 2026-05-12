@@ -5,6 +5,8 @@
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
 #include "lights/ILight.hpp"
+#include "materials/IMaterial.hpp"
+#include "materials/MaterialOptions.hpp"
 #include "primitives/IPrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
 #include "transforms/ITransform.hpp"
@@ -90,7 +92,7 @@ Raytracer::Camera Raytracer::Config::parseCamera() const
 
         return Camera(
             cameraOrigin,
-            Math::Rectangle3D(width, height, fov, cameraOrigin),
+            Screen(width, height, fov, cameraOrigin),
             width,
             height
         );
@@ -148,6 +150,34 @@ std::vector<Raytracer::Math::Point3D> Raytracer::Config::parseVertices(const lib
         });
     }
     return vertices;
+}
+
+Raytracer::MaterialOptions Raytracer::Config::parseMaterialOptions(const libconfig::Setting &) const
+{
+    return {
+        .color = Color(),
+        .properties = {
+            .transparency = 0.0,
+            .reflexion = 0.0,
+            .refraction = 0.0
+        }
+    };
+}
+
+std::shared_ptr<Raytracer::IMaterial> Raytracer::Config::parseMaterial(const libconfig::Setting &initialSetting) const
+{
+    if (!initialSetting.exists("material")) {
+        // If no option specified, use flat color material.
+        MaterialOptions options;
+        return _factory.createMaterial("flatcolor", options);
+    }
+
+    const libconfig::Setting &setting = initialSetting["material"];
+    std::string name;
+
+    setting.lookupValue("name", name);
+
+    return _factory.createMaterial(name, {});
 }
 
 Raytracer::Math::Vector3D Raytracer::Config::parseCylinderAxis(const libconfig::Setting &setting) const
@@ -244,6 +274,7 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
     Raytracer::PrimitiveOptions options{
         .center = Math::Point3D(center.x, center.y, center.z),
         .color = color,
+        .material = parseMaterial(setting),
         .transform = transform,
         .radius = static_cast<double>(r),
         .normal = normal,
@@ -268,7 +299,7 @@ Raytracer::LightOptions Raytracer::Config::parseLightOptions(const libconfig::Se
 
     return {
         .position = Math::Point3D(x, y, z),
-        .color = Color(),
+        .color = Color(255,255,255),
     };
 }
 

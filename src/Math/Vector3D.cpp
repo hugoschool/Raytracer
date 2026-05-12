@@ -1,4 +1,5 @@
 #include "Math/Vector3D.hpp"
+#include "Color.hpp"
 #include "Math/Matrix3x1.hpp"
 #include <cmath>
 #include <iostream>
@@ -11,6 +12,9 @@ Raytracer::Math::Vector3D::Vector3D(const Matrix3x1 &matrix) : x(matrix.get(0)),
 {
 }
 
+Raytracer::Math::Vector3D::Vector3D(const Color &color) : x(color.r), y(color.g), z(color.b)
+{
+}
 
 double Raytracer::Math::Vector3D::length() const
 {
@@ -92,7 +96,6 @@ void Raytracer::Math::Vector3D::operator*=(const double nb)
     this->y *= nb;
     this->z *= nb;
 }
-
 
 void Raytracer::Math::Vector3D::operator/=(const Vector3D &vector)
 {

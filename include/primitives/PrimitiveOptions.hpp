@@ -6,6 +6,8 @@
 #include "transforms/ITransform.hpp"
 #include <memory>
 #include <vector>
+#include "materials/IMaterial.hpp"
+#include <memory>
 
 namespace Raytracer {
     class ITransform;
@@ -13,6 +15,7 @@ namespace Raytracer {
         // Globally used
         const Math::Point3D center;
         Color color;
+        std::shared_ptr<IMaterial> material;
         std::shared_ptr<ITransform> transform;
 
         // Sphere & Cylinder
