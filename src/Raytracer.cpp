@@ -141,7 +141,7 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
 
         Color tmpColor = white - color;
         tmpColor = Color(std::max(lightColor.r - tmpColor.r, 0), std::max(lightColor.g - tmpColor.g, 0), std::max(lightColor.b - tmpColor.b, 0));
-        Ray lightToHit(light->getOptions().position, light_Vector);
+        Ray lightToHit(hit.getHitPos(), light_Vector * -1);
         for (std::shared_ptr<IPrimitive> &tmpPrimitive: _primitives) {
             if (tmpPrimitive.get() == s.get())
                 continue;
