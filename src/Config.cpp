@@ -168,7 +168,14 @@ std::shared_ptr<Raytracer::IMaterial> Raytracer::Config::parseMaterial(const lib
 {
     if (!initialSetting.exists("material")) {
         // If no option specified, use flat color material.
-        MaterialOptions options;
+        MaterialOptions options = {
+            .color = Color(0, 0, 0),
+            .properties = {
+                .transparency = 0.0,
+                .reflexion = 0.0,
+                .refraction = 0.0
+            },
+        };
         return _factory.createMaterial("flatcolor", options);
     }
 
