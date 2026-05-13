@@ -7,7 +7,7 @@ CPPFLAGS	:=	-I $(BASE_DIR)/include/
 LDLIBS	:=	-lconfig++
 
 ifeq ($(ENV), dev)
-	CXXFLAGS	+=	-fsanitize=address
+	CXXFLAGS	+=	-g -fsanitize=address
 	LDLIBS	+=	-fsanitize=address
 endif
 
@@ -16,7 +16,6 @@ ifeq ($(ENV), dev-g3)
 endif
 
 MATH_SRC	:=	$(BASE_DIR)/src/Math/Point3D.cpp \
-				$(BASE_DIR)/src/Math/Rectangle3D.cpp \
 				$(BASE_DIR)/src/Math/Vector3D.cpp \
 				$(BASE_DIR)/src/Math/Matrix3x3.cpp \
 				$(BASE_DIR)/src/Math/Matrix3x1.cpp
@@ -46,7 +45,8 @@ SRC	:=	$(COMMON_SRC) \
 		src/Config.cpp \
 		src/DLLoader.cpp \
 		src/Camera.cpp \
-		src/Ray.cpp
+		src/Ray.cpp \
+		src/Screen.cpp
 
 OBJ	:=	$(SRC:.cpp=.o)
 
@@ -54,7 +54,7 @@ BINARY	:=	raytracer
 
 all:	plugins $(BINARY)
 
-plugins: primitives lights
+plugins: primitives lights transforms materials
 
 primitives:
 	$(MAKE) -C src/primitives
@@ -62,17 +62,25 @@ primitives:
 lights:
 	$(MAKE) -C src/lights
 
+materials:
+	$(MAKE) -C src/materials
+
+transforms:
+	$(MAKE) -C src/transforms
+
 $(BINARY):	$(OBJ)
 	$(CXX) -o $(BINARY) $(OBJ) $(LDFLAGS) $(LDLIBS)
 
 clean:
 	$(MAKE) -C src/primitives clean
 	$(MAKE) -C src/lights clean
+	$(MAKE) -C src/transforms clean
 	$(RM) $(OBJ)
 
 fclean:	clean
 	$(MAKE) -C src/primitives fclean
 	$(MAKE) -C src/lights fclean
+	$(MAKE) -C src/transforms fclean
 	$(RM) $(BINARY)
 
 re:	fclean all

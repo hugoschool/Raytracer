@@ -26,13 +26,14 @@ namespace Raytracer {
         private:
             const std::string _sceneFile;
             Config _config;
-            double _maxilluminance;
             Camera _camera;
-
-            Pixel handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, Color &color);
-
+            double random(double min, double max);
+            Pixel hitIlluminance(std::shared_ptr<IPrimitive> &s, HitInfo &hit);
+            Pixel handleHit(std::shared_ptr<IPrimitive> &s, HitInfo &hit, size_t left_occlusion, Ray &r, bool isAmbiant, std::shared_ptr<IPrimitive> ignoredObj);
+            Pixel mainHandleHit(Ray &r, size_t left_occlusion, bool isAmbiant, std::shared_ptr<IPrimitive> ignoredObj);
             std::vector<std::vector<Pixel>> _pixels;
             std::vector<std::shared_ptr<IPrimitive>> _primitives;
             std::vector<std::shared_ptr<ILight>> _lights;
+            bool _toggleAmbiantOcclusion;
     };
 }

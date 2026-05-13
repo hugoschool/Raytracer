@@ -47,6 +47,7 @@ clean:
 	$(RM) $(TRIANGLE_OBJ)
 	$(RM) $(CUBE_OBJ)
 	$(RM) $(CYLINDER_OBJ)
+	$(RM) $(CUBE_OBJ)
 
 fclean:	clean
 	$(RM) $(SPHERE_BIN)
@@ -54,6 +55,7 @@ fclean:	clean
 	$(RM) $(TRIANGLE_BIN)
 	$(RM) $(CUBE_BIN)
 	$(RM) $(CYLINDER_BIN)
+	$(RM) $(CUBE_BIN)
 
 re:	fclean all
 
