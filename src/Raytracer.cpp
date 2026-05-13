@@ -150,7 +150,7 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
                 continue;
             // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
             Math::Vector3D lightToNewObject = light->getDirection(tmpHitInfo.getHitPos());
-            if (lightToNewObject.length() > light_Vector.length()) {
+            if (lightToNewObject.length() >= light_Vector.length()) {
                 continue;
             }
             if (light_Vector.dot(lightToNewObject) < 0) // On calcule la norme pour savoir si les vecteurs sont opposés
