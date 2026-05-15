@@ -49,7 +49,7 @@ Raytracer::HitInfo Raytracer::Sphere::hits(Raytracer::Ray &ray)
         k = std::min(std::abs(k1), std::abs(k2));
     }
     Math::Point3D coincide = ray.origin + (ray.direction * k);
-    return HitInfo(true, coincide, _options.color);
+    return HitInfo(true, coincide, _options.color, k);
 }
 
 Raytracer::Math::Vector3D Raytracer::Sphere::getNormal(const Math::Point3D point) const

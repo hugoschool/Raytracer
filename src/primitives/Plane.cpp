@@ -20,7 +20,7 @@ Raytracer::HitInfo Raytracer::Plane::hits(Raytracer::Ray &ray)
     if (k_vec <= 0)
         return HitInfo(false);
     Math::Point3D coincide = ray.origin + (ray.direction * k_vec);
-    return HitInfo(true, coincide, _options.color);
+    return HitInfo(true, coincide, _options.color, k_vec);
 }
 
 Raytracer::Math::Vector3D Raytracer::Plane::getNormal(const Math::Point3D) const

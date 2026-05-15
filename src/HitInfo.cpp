@@ -2,9 +2,10 @@
 #include "Color.hpp"
 #include "Math/Point3D.hpp"
 
-Raytracer::HitInfo::HitInfo(bool didHit, Math::Point3D &pos, Color &color): _hasHit(didHit), _hitPos(pos), _color(color)
+Raytracer::HitInfo::HitInfo(bool didHit, Math::Point3D &pos, Color &color, double multiplier)
+    : _hasHit(didHit), _hitPos(pos), _color(color), _multiplier(multiplier)
 {
-    
+
 }
 
 Raytracer::HitInfo::HitInfo(bool didHit) : _hasHit(didHit), _hitPos(), _color()
@@ -24,4 +25,9 @@ Raytracer::Color Raytracer::HitInfo::getColor() const
 Raytracer::Math::Point3D Raytracer::HitInfo::getHitPos() const
 {
     return this->_hitPos;
+}
+
+double Raytracer::HitInfo::getMultiplier() const
+{
+    return _multiplier;
 }

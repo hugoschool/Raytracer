@@ -32,7 +32,7 @@ Raytracer::HitInfo Raytracer::Cube::hits(Raytracer::Ray &ray)
         return HitInfo(false);
     k = tmin > 0 ? tmin : tmax;
     coincide = ray.origin + (ray.direction * k);
-    return HitInfo(true, coincide, _options.color);
+    return HitInfo(true, coincide, _options.color, k);
 }
 
 Raytracer::Math::Vector3D Raytracer::Cube::getNormal(const Math::Point3D point) const

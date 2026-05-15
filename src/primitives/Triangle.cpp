@@ -52,7 +52,7 @@ Raytracer::HitInfo Raytracer::Triangle::hits(Raytracer::Ray &ray)
 
     if (orthogonal.dot(this->_normal) <= 0)
         return HitInfo(false);
-    return HitInfo(true, coincide, _options.color);
+    return HitInfo(true, coincide, _options.color, k_vec);
 }
 
 Raytracer::Math::Vector3D Raytracer::Triangle::getNormal(const Math::Point3D) const
