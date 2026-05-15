@@ -132,7 +132,7 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
     std::vector<Pixel> lightColors;
 
     for (std::shared_ptr<ILight> &light: _lights) {
-        Math::Vector3D light_Vector = light->getOptions().position - hit.getHitPos();
+        Math::Vector3D light_Vector = light->getDirection(hit.getHitPos());
         Math::Vector3D normal = s->getNormal(hit.getHitPos());
         Color lightColor = light->getOptions().color;
         double tmpMultiplier = light_Vector.cosine(normal);
@@ -141,7 +141,8 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
 
         Color tmpColor = white - color;
         tmpColor = Color(std::max(lightColor.r - tmpColor.r, 0), std::max(lightColor.g - tmpColor.g, 0), std::max(lightColor.b - tmpColor.b, 0));
-        Ray lightToHit(light->getOptions().position, light_Vector);
+
+        Ray lightToHit = light->getRay(light_Vector, hit);
         for (std::shared_ptr<IPrimitive> &tmpPrimitive: _primitives) {
             if (tmpPrimitive.get() == s.get())
                 continue;
@@ -149,18 +150,15 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
             if (!tmpHitInfo.hasHit())
                 continue;
             // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
-            Math::Vector3D lightToNewObject = light->getOptions().position - tmpHitInfo.getHitPos();
-            if (lightToNewObject.length() > light_Vector.length()) {
-                continue;
-            }
-            if (light_Vector.dot(lightToNewObject) < 0) // On calcule la norme pour savoir si les vecteurs sont opposés
-                continue;
+            Math::Vector3D lightToNewObject = light->getDirection(tmpHitInfo.getHitPos());
+            light->modifyMultiplierForShadow(light_Vector, lightToNewObject, tmpMultiplier, tmpHitInfo.getMultiplier());
+
             if (tmpPrimitive->getOptions().material->getOptions().properties.transparency > 0) {
                 tmpMultiplier *= tmpPrimitive->getOptions().material->getOptions().properties.transparency;
                 continue;
             }
-            tmpMultiplier = 0.0;
-            break;
+            if (tmpMultiplier == 0.0)
+                break;
         }
         if (tmpMultiplier <= 0.01) {
             continue;

@@ -304,9 +304,27 @@ Raytracer::LightOptions Raytracer::Config::parseLightOptions(const libconfig::Se
     setting.lookupValue("y", y);
     setting.lookupValue("z", z);
 
+    Math::Vector3D direction(0, 0, 0);
+    if (setting.exists("direction")) {
+        const libconfig::Setting &directionSetting = setting["direction"];
+        long long directionX = 0;
+        long long directionY = 0;
+        long long directionZ = 0;
+
+        directionSetting.lookupValue("x", directionX);
+        directionSetting.lookupValue("y", directionY);
+        directionSetting.lookupValue("z", directionZ);
+        direction = Math::Vector3D(directionX, directionY, directionZ);
+    }
+
+    double multiplier = 0.0;
+    setting.lookupValue("multiplier", multiplier);
+
     return {
-        .position = Math::Point3D(x, y, z),
         .color = Color(255,255,255),
+        .position = Math::Point3D(x, y, z),
+        .direction = direction,
+        .multiplier = multiplier
     };
 }
 
@@ -349,6 +367,16 @@ std::vector<std::shared_ptr<Raytracer::ILight>> Raytracer::Config::parseLights()
     }
     try {
         for (const libconfig::Setting &lightCategory : _root->get()["lights"]) {
+            // Special parsing for singular config lights
+            if (std::string(lightCategory.getName()) == "ambient") {
+                const LightOptions options = parseLightOptions(lightCategory);
+
+                lights.push_back(
+                    _factory.createLight(lightCategory.getName(), options)
+                );
+                continue;
+            }
+
             int count = lightCategory.getLength();
 
             for (int i = 0; i < count; i++) {

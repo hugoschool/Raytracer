@@ -21,7 +21,8 @@ MATH_SRC	:=	$(BASE_DIR)/src/Math/Point3D.cpp \
 				$(BASE_DIR)/src/Math/Matrix3x1.cpp
 
 # Shared between the main core and the plugins
-COMMON_SRC	:=	$(BASE_DIR)/src/HitInfo.cpp
+COMMON_SRC	:=	$(BASE_DIR)/src/HitInfo.cpp \
+				$(BASE_DIR)/src/Ray.cpp
 
 # Make all calls to other makefiles inherit those variables
 export BASE_DIR
@@ -45,7 +46,6 @@ SRC	:=	$(COMMON_SRC) \
 		src/Config.cpp \
 		src/DLLoader.cpp \
 		src/Camera.cpp \
-		src/Ray.cpp \
 		src/Screen.cpp
 
 OBJ	:=	$(SRC:.cpp=.o)

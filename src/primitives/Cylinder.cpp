@@ -50,14 +50,14 @@ Raytracer::HitInfo Raytracer::Cylinder::hits(Raytracer::Ray &ray)
     //     return HitInfo(false);
     // }
 
-    return HitInfo(true, coincide, _options.color);
+    return HitInfo(true, coincide, _options.color, k);
 }
 
 Raytracer::Math::Vector3D Raytracer::Cylinder::getNormal(const Math::Point3D point) const
 {
     double t = (_options.center - point).dot(_options.cylinderAxis.normalize());
     Math::Point3D axis_point = _options.center + (_options.cylinderAxis.normalize() * t);
-    
+
     // can see this for finite cylinder
     // top hit
     // if (std::abs(t - _options.cylinderAxis.length()) < 0 && (point - axis_point).dot(point - axis_point) <= std::pow(_options.radius, 2)) {
