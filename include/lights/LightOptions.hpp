@@ -14,5 +14,8 @@ namespace Raytracer {
 
         // Directional
         const Math::Vector3D direction;
+
+        // Ambient
+        double multiplier;
     };
 }
