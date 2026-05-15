@@ -10,5 +10,6 @@ namespace Raytracer {
 
             virtual LightOptions getOptions() const = 0;
             virtual Math::Vector3D getDirection(Math::Point3D) const = 0;
+            virtual void modifyMultiplierForShadow(Math::Vector3D, Math::Vector3D, double &, double) const = 0;
     };
 }

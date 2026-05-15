@@ -14,3 +14,7 @@ Raytracer::LightOptions Raytracer::ALight::getOptions() const
 {
     return _options;
 }
+
+void Raytracer::ALight::modifyMultiplierForShadow(Math::Vector3D, Math::Vector3D, double &, double) const
+{
+}

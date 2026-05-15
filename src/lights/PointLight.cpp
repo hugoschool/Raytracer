@@ -13,6 +13,14 @@ Raytracer::Math::Vector3D Raytracer::PointLight::getDirection(Raytracer::Math::P
     return _options.position - origin;
 }
 
+void Raytracer::PointLight::modifyMultiplierForShadow(Math::Vector3D distance, Math::Vector3D lightDistance, double &multiplier, double) const
+{
+    if (lightDistance.length() < distance.length() && distance.dot(lightDistance) > 0) {
+        multiplier = 0.0;
+    }
+}
+
+
 extern "C" Raytracer::PointLight *lightEntrypoint(Raytracer::LightOptions options)
 {
     return new Raytracer::PointLight(options);

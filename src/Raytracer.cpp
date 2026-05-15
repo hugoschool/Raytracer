@@ -150,17 +150,14 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
                 continue;
             // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
             Math::Vector3D lightToNewObject = light->getDirection(tmpHitInfo.getHitPos());
-            if (lightToNewObject.length() >= light_Vector.length()) {
-                continue;
-            }
-            if (light_Vector.dot(lightToNewObject) < 0) // On calcule la norme pour savoir si les vecteurs sont opposés
-                continue;
+            light->modifyMultiplierForShadow(light_Vector, lightToNewObject, tmpMultiplier, tmpHitInfo.getMultiplier());
+
             if (tmpPrimitive->getOptions().material->getOptions().properties.transparency > 0) {
                 tmpMultiplier *= tmpPrimitive->getOptions().material->getOptions().properties.transparency;
                 continue;
             }
-            tmpMultiplier = 0.0;
-            break;
+            if (tmpMultiplier == 0.0)
+                break;
         }
         if (tmpMultiplier <= 0.01) {
             continue;
