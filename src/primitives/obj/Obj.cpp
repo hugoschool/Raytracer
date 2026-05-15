@@ -11,13 +11,15 @@
 #include <exception>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-Raytracer::Obj::Obj(Raytracer::PrimitiveOptions options) : APrimitive(options), _vertices(), _triangles(), _pointToNormal()
+Raytracer::Obj::Obj(Raytracer::PrimitiveOptions options)
+    : APrimitive(options), _vertices(), _triangles(), _pointToNormal(), _mutex()
 {
     std::cerr << options.fileName << std::endl;
 
@@ -56,7 +58,7 @@ Raytracer::HitInfo Raytracer::Obj::hits(Raytracer::Ray &ray)
                     hit = temp;
                     normal = triangle.getNormal(hit->getHitPos());
                 }
-            } else {                
+            } else {
                 hit = temp;
                 normal = triangle.getNormal(hit->getHitPos());
             }
@@ -64,8 +66,11 @@ Raytracer::HitInfo Raytracer::Obj::hits(Raytracer::Ray &ray)
     }
 
     if (hit.has_value()) {
-        // std::cerr << "pass" << std::endl;
-        _pointToNormal.push_back({hit->getHitPos(), normal});
+        {
+            const std::lock_guard<std::mutex> _lock(_mutex);
+
+            _pointToNormal.push_back({hit->getHitPos(), normal});
+        }
         return hit.value();
     } else {
         return HitInfo(false);

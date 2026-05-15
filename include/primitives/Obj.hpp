@@ -8,6 +8,7 @@
 #include "primitives/APrimitive.hpp"
 #include "primitives/PrimitiveOptions.hpp"
 #include "primitives/Triangle.hpp"
+#include <mutex>
 #include <string>
 #include <utility>
 #include <vector>
@@ -24,6 +25,7 @@ namespace Raytracer {
             std::vector<Math::Point3D> _vertices;
             std::vector<Triangle> _triangles;
             std::vector<std::pair<Math::Point3D, Math::Vector3D>> _pointToNormal;
+            std::mutex _mutex;
 
             Math::Point3D lineToVertex(std::string line, PrimitiveOptions options);
             Triangle lineToTriangle(std::string line, PrimitiveOptions options);
