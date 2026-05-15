@@ -18,3 +18,8 @@ Raytracer::LightOptions Raytracer::ALight::getOptions() const
 void Raytracer::ALight::modifyMultiplierForShadow(Math::Vector3D, Math::Vector3D, double &, double) const
 {
 }
+
+Raytracer::Ray Raytracer::ALight::getRay(Raytracer::Math::Vector3D &vec, Raytracer::HitInfo &hit) const
+{
+    return Ray(hit.getHitPos(), vec * -1);
+}

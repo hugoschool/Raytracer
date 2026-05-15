@@ -20,6 +20,10 @@ void Raytracer::PointLight::modifyMultiplierForShadow(Math::Vector3D distance, M
     }
 }
 
+Raytracer::Ray Raytracer::PointLight::getRay(Raytracer::Math::Vector3D &vec, Raytracer::HitInfo &) const
+{
+    return Ray(_options.position, vec);
+}
 
 extern "C" Raytracer::PointLight *lightEntrypoint(Raytracer::LightOptions options)
 {
