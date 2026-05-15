@@ -2,6 +2,7 @@
 
 #include "Math/Point3D.hpp"
 #include "Color.hpp"
+#include "Math/Vector3D.hpp"
 
 namespace Raytracer {
     struct LightOptions {
@@ -9,6 +10,9 @@ namespace Raytracer {
         Color color;
 
         // Point
-        const Math::Point3D position;
+        Math::Point3D position;
+
+        // Directional
+        const Math::Vector3D direction;
     };
 }

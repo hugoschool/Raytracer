@@ -304,9 +304,23 @@ Raytracer::LightOptions Raytracer::Config::parseLightOptions(const libconfig::Se
     setting.lookupValue("y", y);
     setting.lookupValue("z", z);
 
+    Math::Vector3D direction(0, 0, 0);
+    if (setting.exists("direction")) {
+        const libconfig::Setting &directionSetting = setting["direction"];
+        long long directionX = 0;
+        long long directionY = 0;
+        long long directionZ = 0;
+
+        directionSetting.lookupValue("x", directionX);
+        directionSetting.lookupValue("y", directionY);
+        directionSetting.lookupValue("z", directionZ);
+        direction = Math::Vector3D(directionX, directionY, directionZ);
+    }
+
     return {
         .color = Color(255,255,255),
         .position = Math::Point3D(x, y, z),
+        .direction = direction,
     };
 }
 
