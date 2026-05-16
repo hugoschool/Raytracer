@@ -7,6 +7,5 @@ namespace Raytracer {
             virtual ~IMaterial() = default;
 
             virtual MaterialOptions getOptions() const = 0;
-            // TODO
     };
 }

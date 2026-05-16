@@ -15,6 +15,5 @@ namespace Raytracer {
             virtual HitInfo hits(Ray &ray) = 0;
             virtual PrimitiveOptions getOptions() const = 0;
             virtual Math::Vector3D getNormal(Math::Point3D) const = 0;
-            // TODO: getMaterial
     };
 }
