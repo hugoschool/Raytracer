@@ -13,12 +13,11 @@
 #include <cstddef>
 #include <iostream>
 #include <memory>
-#include <random>
 #include <vector>
 #include <thread>
 
 Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
-    _sceneFile(sceneFile), _config(_sceneFile)
+    _sceneFile(sceneFile), _config(_sceneFile), rd(), gen(rd())
 {
     _config.parseIncludes();
     _camera = _config.parseCamera();
@@ -30,13 +29,6 @@ Raytracer::Raytracer::Raytracer(const std::string sceneFile) :
     });
     _lights = _config.parseLights();
     _toggleAmbiantOcclusion = false;
-}
-
-double Raytracer::Raytracer::random(double lower, double higher)
-{
-    std::uniform_real_distribution<double> randomnb(lower,higher);
-    std::default_random_engine randomEngine;
-    return randomnb(randomEngine);
 }
 
 Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &obj, HitInfo &hit, size_t left_occlusion, Ray &r, bool isAmbiant, std::shared_ptr<IPrimitive> ignoredObj)
@@ -83,7 +75,7 @@ Raytracer::Pixel Raytracer::Raytracer::handleHit(std::shared_ptr<IPrimitive> &ob
         // utiliser la lambertian distribution plutôt que ce qu'on fait actuellement;
         double multiplierAverage = 0;
         for (size_t i = 0; i < Utils::occlusion; i++) {
-            Ray newRay(hit.getHitPos(), Math::Vector3D(normal.x + random(0,1) - 0.5, normal.y + random(0,1) - 0.5, normal.z + random(0,1) - 0.5));
+            Ray newRay(hit.getHitPos(), Math::Vector3D(normal.x + randomInRange<double>(0, 1) - 0.5, normal.y + randomInRange<double>(0, 1) - 0.5, normal.z + randomInRange<double>(0, 1) - 0.5));
             ignoredObj = obj;
             multiplierAverage += this->mainHandleHit(newRay, left_occlusion - 1, true, ignoredObj).multiplier;
             ignoredObj = nullptr;
