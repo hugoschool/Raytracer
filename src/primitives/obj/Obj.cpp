@@ -1,4 +1,5 @@
 #include "primitives/Obj.hpp"
+#include "Exception.hpp"
 #include "HitInfo.hpp"
 #include "Math/Point3D.hpp"
 #include "Math/Vector3D.hpp"
@@ -14,15 +15,12 @@
 #include <mutex>
 #include <optional>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
 Raytracer::Obj::Obj(Raytracer::PrimitiveOptions options)
     : APrimitive(options), _vertices(), _triangles(), _pointToNormal(), _mutex()
 {
-    std::cerr << options.fileName << std::endl;
-
     std::ifstream file(options.fileName);
     std::string line;
 
@@ -94,21 +92,21 @@ Raytracer::Math::Point3D Raytracer::Obj::lineToVertex(std::string line, Raytrace
     double x, y, z;
 
     if (!getline(stream, str, ' ')) {
-        throw std::runtime_error("invalid vertex");
+        throw Exception("invalid vertex");
     }
 
     if (!getline(stream, str, ' ')) {
-        throw std::runtime_error("invalid vertex");
+        throw Exception("invalid vertex");
     }
     x = std::stod(str) * 10 + options.center.x;
 
     if (!getline(stream, str, ' ')) {
-        throw std::runtime_error("invalid vertex");
+        throw Exception("invalid vertex");
     }
     y = std::stod(str) * 10 + options.center.y;
 
     if (!getline(stream, str, ' ')) {
-        throw std::runtime_error("invalid vertex");
+        throw Exception("invalid vertex");
     }
     z = std::stod(str) * 10 + options.center.z;
     return Raytracer::Math::Point3D(x, y, z);
@@ -122,33 +120,33 @@ Raytracer::Triangle Raytracer::Obj::lineToTriangle(std::string line, Raytracer::
     PrimitiveOptions triangeOption = options;
 
     if (!getline(stream, str, ' ')) {
-        throw std::runtime_error("invalid triangle");
+        throw Exception("invalid triangle");
     }
 
     if (!getline(stream, str, ' ')) {
-        throw std::runtime_error("invalid triangle");
+        throw Exception("invalid triangle");
     }
     index = std::stoi(str);
     if (index < 1 || index > _vertices.size()) {
-        throw std::runtime_error("invalid index");
+        throw Exception("invalid index");
     }
     triangeOption.vertices.push_back(_vertices[index - 1]);
 
     if (!getline(stream, str, ' ') && std::stoi(str) > 0) {
-        throw std::runtime_error("invalid triangle");
+        throw Exception("invalid triangle");
     }
     index = std::stoi(str);
     if (index < 1 || index > _vertices.size()) {
-        throw std::runtime_error("invalid index");
+        throw Exception("invalid index");
     }
     triangeOption.vertices.push_back(_vertices[index - 1]);
 
     if (!getline(stream, str, ' ') && std::stoi(str) > 0) {
-        throw std::runtime_error("invalid triangle");
+        throw Exception("invalid triangle");
     }
     index = std::stoi(str);
     if (index < 1 || index > _vertices.size()) {
-        throw std::runtime_error("invalid index");
+        throw Exception("invalid index");
     }
     triangeOption.vertices.push_back(_vertices[index - 1]);
 
