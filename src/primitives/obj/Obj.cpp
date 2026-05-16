@@ -9,12 +9,11 @@
 #include "primitives/PrimitiveOptions.hpp"
 #include "primitives/Triangle.hpp"
 #include <cstddef>
-#include <exception>
 #include <fstream>
 #include <iostream>
 #include <mutex>
 #include <optional>
-#include <sstream>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -26,16 +25,36 @@ Raytracer::Obj::Obj(Raytracer::PrimitiveOptions options)
 
     if (!file.is_open())
         throw Exception("Couldn't open " + _options.fileName);
+
+    const std::string ignoreWhitespaceRegexPart = "(?:\\s+)";
+    const std::string floatRegexPart = "([+-]?(?:[0-9]*[.])?[0-9]+)";
+    const std::string numberRegexPart = "([+-]?[0-9]+)";
+    std::regex vertexRegex(
+        "v" + ignoreWhitespaceRegexPart +
+        floatRegexPart + ignoreWhitespaceRegexPart +
+        floatRegexPart + ignoreWhitespaceRegexPart +
+        floatRegexPart);
+    std::regex triangleRegex(
+        "f" + ignoreWhitespaceRegexPart +
+        numberRegexPart + ignoreWhitespaceRegexPart +
+        numberRegexPart + ignoreWhitespaceRegexPart +
+        numberRegexPart);
+
     while (getline(file, line)) {
-        if (line.starts_with("v ")) {
+        std::smatch matches;
+
+        if (std::regex_match(line, matches, vertexRegex)) {
             try {
-                _vertices.push_back(lineToVertex(line, options));
+                _vertices.push_back(lineToVertex(matches, options));
             } catch (const std::exception &e) {
+                std::cerr << e.what() << std::endl;
             }
-        } else if (line.starts_with("f ")) {
+        }
+        if (std::regex_match(line, matches, triangleRegex)) {
             try {
-                _triangles.push_back(lineToTriangle(line, options));
+                _triangles.push_back(lineToTriangle(matches, options));
             } catch (const std::exception &e) {
+                std::cerr << e.what() << std::endl;
             }
         }
     }
@@ -47,7 +66,7 @@ Raytracer::HitInfo Raytracer::Obj::hits(Raytracer::Ray &ray)
     std::optional<HitInfo> hit;
     Math::Vector3D normal;
 
-    for (auto triangle: _triangles) {
+    for (Triangle &triangle : _triangles) {
         HitInfo temp = triangle.hits(ray);
 
         if (temp.hasHit() == true) {
@@ -91,70 +110,37 @@ Raytracer::Math::Vector3D Raytracer::Obj::getNormal(const Math::Point3D point) c
     return Math::Vector3D(0, 0, 0);
 }
 
-Raytracer::Math::Point3D Raytracer::Obj::lineToVertex(std::string line, Raytracer::PrimitiveOptions options)
+Raytracer::Math::Point3D Raytracer::Obj::lineToVertex(std::smatch &matches, Raytracer::PrimitiveOptions options)
 {
-    std::stringstream stream(line);
-    std::string str;
-    double x, y, z;
+    double x = std::stod(matches[1]) * 10 + options.center.x;
+    double y = std::stod(matches[2]) * 10 + options.center.y;
+    double z = std::stod(matches[3]) * 10 + options.center.z;
 
-    if (!getline(stream, str, ' ')) {
-        throw Exception("invalid vertex");
-    }
-
-    if (!getline(stream, str, ' ')) {
-        throw Exception("invalid vertex");
-    }
-    x = std::stod(str) * 10 + options.center.x;
-
-    if (!getline(stream, str, ' ')) {
-        throw Exception("invalid vertex");
-    }
-    y = std::stod(str) * 10 + options.center.y;
-
-    if (!getline(stream, str, ' ')) {
-        throw Exception("invalid vertex");
-    }
-    z = std::stod(str) * 10 + options.center.z;
     return Raytracer::Math::Point3D(x, y, z);
 }
 
-Raytracer::Triangle Raytracer::Obj::lineToTriangle(std::string line, Raytracer::PrimitiveOptions options)
+Raytracer::Triangle Raytracer::Obj::lineToTriangle(std::smatch &matches, Raytracer::PrimitiveOptions options)
 {
-    std::stringstream stream(line);
-    std::string str;
     size_t index;
-    PrimitiveOptions triangeOption = options;
+    PrimitiveOptions triangleOption = options;
 
-    if (!getline(stream, str, ' ')) {
-        throw Exception("invalid triangle");
-    }
-
-    if (!getline(stream, str, ' ')) {
-        throw Exception("invalid triangle");
-    }
-    index = std::stoi(str);
+    index = std::stoi(matches[1]);
     if (index < 1 || index > _vertices.size()) {
         throw Exception("invalid index");
     }
-    triangeOption.vertices.push_back(_vertices[index - 1]);
+    triangleOption.vertices.push_back(_vertices[index - 1]);
 
-    if (!getline(stream, str, ' ') && std::stoi(str) > 0) {
-        throw Exception("invalid triangle");
-    }
-    index = std::stoi(str);
+    index = std::stoi(matches[2]);
     if (index < 1 || index > _vertices.size()) {
         throw Exception("invalid index");
     }
-    triangeOption.vertices.push_back(_vertices[index - 1]);
+    triangleOption.vertices.push_back(_vertices[index - 1]);
 
-    if (!getline(stream, str, ' ') && std::stoi(str) > 0) {
-        throw Exception("invalid triangle");
-    }
-    index = std::stoi(str);
+    index = std::stoi(matches[3]);
     if (index < 1 || index > _vertices.size()) {
         throw Exception("invalid index");
     }
-    triangeOption.vertices.push_back(_vertices[index - 1]);
+    triangleOption.vertices.push_back(_vertices[index - 1]);
 
-    return Raytracer::Triangle(triangeOption);
+    return Raytracer::Triangle(triangleOption);
 }
