@@ -21,8 +21,14 @@ Example scenes are available in the `scenes/` folder.
 
 ## Examples
 
-![sphere_disorder_15](./screenshots/sphere_disorder_15.png)
+![sphere_materials](./screenshots//sphere_materials.png)
 ![transform_scale](./screenshots/transform_scale.png)
+
+Object files:
+
+Teapot | Cow
+:-------------------------:|:-------------------------:
+![Teapot](./screenshots/teapot_red.png)  |  ![](./screenshots/cow.png)
 
 ## Documentation
 
