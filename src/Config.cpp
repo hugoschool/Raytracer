@@ -88,13 +88,24 @@ Raytracer::Camera Raytracer::Config::parseCamera() const
             throw Exception("Invalid camera parameter");
         }
 
+        int rotationX = 0;
+        int rotationY = 0;
+        int rotationZ = 0;
+
+        if (camera.exists("rotation")) {
+            camera["rotation"].lookupValue("x", rotationX);
+            camera["rotation"].lookupValue("y", rotationY);
+            camera["rotation"].lookupValue("z", rotationZ);
+        }
+
         Math::Point3D cameraOrigin(x, y, z);
 
         return Camera(
             cameraOrigin,
             Screen(width, height, fov, cameraOrigin),
             width,
-            height
+            height,
+            Math::Vector3D(rotationX, rotationY, rotationZ)
         );
     } catch (const std::exception &e) {
         throw Raytracer::Exception("Wrong or missing camera parameter");

@@ -8,16 +8,17 @@ Raytracer::Camera::Camera() : origin(0, 0, 0), screen(), width(), height()
 }
 
 Raytracer::Camera::Camera(const Math::Point3D origin, const Screen screen,
-    const std::size_t width, const std::size_t height) :
-    origin(origin), screen(screen), width(width), height(height)
+    const std::size_t width, const std::size_t height,
+    Math::Vector3D direction) :
+    origin(origin), screen(screen), width(width), height(height), direction(direction)
 {
 }
-
 
 Raytracer::Ray Raytracer::Camera::ray(double u, double v)
 {
     Math::Point3D point = screen.pointAt(u, v);
-    Math::Vector3D direction = origin - point;
+    Math::Point3D rayOrigin = origin + direction;
+    Math::Vector3D rayDirection = origin - point + direction;
 
-    return Raytracer::Ray(origin, direction);
+    return Raytracer::Ray(rayOrigin, rayDirection);
 }
