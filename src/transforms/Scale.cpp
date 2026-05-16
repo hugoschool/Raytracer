@@ -29,9 +29,9 @@ void Raytracer::Scale::scaleTriangle(std::vector<Math::Point3D> &vertices)
     }
 }
 
-void Raytracer::Scale::transformPrimitive(Raytracer::PrimitiveOptions &options)
+void Raytracer::Scale::transform(Raytracer::PrimitiveOptions &options)
 {
-    _options.ptr->transformPrimitive(options);
+    _options.ptr->transform(options);
 
     if (_options.multiplier == 0)
         return;

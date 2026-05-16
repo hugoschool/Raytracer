@@ -11,7 +11,7 @@ namespace Raytracer {
             Scale(TransformOptions options);
             ~Scale() = default;
 
-            void transformPrimitive(PrimitiveOptions &) override;
+            void transform(PrimitiveOptions &) override;
 
         private:
             void scaleTriangle(std::vector<Math::Point3D> &vertices);

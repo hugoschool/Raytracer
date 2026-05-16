@@ -10,8 +10,8 @@ namespace Raytracer {
         public:
             virtual ~ITransform() = default;
 
-            virtual void transformVector(Math::Vector3D &) = 0;
-            virtual void transformPoint(Math::Point3D &) = 0;
-            virtual void transformPrimitive(PrimitiveOptions &) = 0;
+            virtual void transform(Math::Vector3D &) = 0;
+            virtual void transform(Math::Point3D &) = 0;
+            virtual void transform(PrimitiveOptions &) = 0;
     };
 }

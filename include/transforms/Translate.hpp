@@ -11,6 +11,6 @@ namespace Raytracer {
             Translate(TransformOptions options);
             ~Translate() = default;
 
-            void transformPrimitive(PrimitiveOptions &) override;
+            void transform(PrimitiveOptions &) override;
     };
 }

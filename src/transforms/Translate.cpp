@@ -6,9 +6,9 @@ Raytracer::Translate::Translate(Raytracer::TransformOptions options) : ATransfor
 {
 }
 
-void Raytracer::Translate::transformPrimitive(Raytracer::PrimitiveOptions &options)
+void Raytracer::Translate::transform(Raytracer::PrimitiveOptions &options)
 {
-    _options.ptr->transformPrimitive(options);
+    _options.ptr->transform(options);
 
     options.center = options.center + _options.translate;
 }

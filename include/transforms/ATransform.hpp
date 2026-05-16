@@ -12,9 +12,9 @@ namespace Raytracer {
             ATransform(TransformOptions options);
             ~ATransform() = default;
 
-            void transformVector(Math::Vector3D &) override;
-            void transformPoint(Math::Point3D &) override;
-            void transformPrimitive(PrimitiveOptions &) override;
+            void transform(Math::Vector3D &) override;
+            void transform(Math::Point3D &) override;
+            void transform(PrimitiveOptions &) override;
 
         protected:
             TransformOptions _options;

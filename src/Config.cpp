@@ -312,7 +312,7 @@ Raytracer::PrimitiveOptions Raytracer::Config::parsePrimitiveOptions(const libco
         .length = length
     };
 
-    options.transform->transformPrimitive(options);
+    options.transform->transform(options);
     return options;
 }
 

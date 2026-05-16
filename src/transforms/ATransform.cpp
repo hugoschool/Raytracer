@@ -5,14 +5,14 @@ Raytracer::ATransform::ATransform(TransformOptions options) : _options(options)
 {
 }
 
-void Raytracer::ATransform::transformVector(Raytracer::Math::Vector3D &)
+void Raytracer::ATransform::transform(Raytracer::Math::Vector3D &)
 {
 }
 
-void Raytracer::ATransform::transformPoint(Raytracer::Math::Point3D &)
+void Raytracer::ATransform::transform(Raytracer::Math::Point3D &)
 {
 }
 
-void Raytracer::ATransform::transformPrimitive(Raytracer::PrimitiveOptions &)
+void Raytracer::ATransform::transform(Raytracer::PrimitiveOptions &)
 {
 }
