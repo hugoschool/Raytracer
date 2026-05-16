@@ -13,7 +13,7 @@ namespace Raytracer {
     class ITransform;
     struct PrimitiveOptions {
         // Globally used
-        const Math::Point3D center;
+        Math::Point3D center;
         Color color;
         std::shared_ptr<IMaterial> material;
         std::shared_ptr<ITransform> transform;

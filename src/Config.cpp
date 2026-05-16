@@ -227,14 +227,25 @@ std::shared_ptr<Raytracer::ITransform> Raytracer::Config::parseTransform(
     for (const libconfig::Setting &transform : setting["transforms"]) {
         std::string type;
         double multiplier = 0;
+        long long x;
+        long long y;
+        long long z;
+        Math::Point3D translate(0, 0, 0);
 
         if (!transform.lookupValue("type", type))
             throw Exception("Invalid transform type");
         transform.lookupValue("multiplier", multiplier);
+        if (transform.exists("direction")) {
+            transform["direction"].lookupValue("x", x);
+            transform["direction"].lookupValue("y", y);
+            transform["direction"].lookupValue("z", z);
+            translate = Math::Point3D(x, y, z);
+        }
 
         TransformOptions options = {
             .ptr = ptr,
             .multiplier = multiplier,
+            .translate = translate
         };
         ptr = _factory.createTransform(type, options);
     }

@@ -8,5 +8,7 @@ namespace Raytracer {
         std::shared_ptr<ITransform> ptr;
         // Scale
         double multiplier;
+        // Translate
+        Math::Point3D translate;
     };
 }
