@@ -77,9 +77,15 @@ Raytracer::HitInfo Raytracer::Obj::hits(Raytracer::Ray &ray)
 
 Raytracer::Math::Vector3D Raytracer::Obj::getNormal(const Math::Point3D point) const
 {
-    for (auto pointNormal: _pointToNormal) {
-        if (pointNormal.first == point) {
-            return pointNormal.second;
+    {
+        // The casting here is necessary as getNormal is a const function
+        // But modifying a mutex is not const
+        const std::lock_guard<std::mutex> _lock(const_cast<Raytracer::Obj *>(this)->_mutex);
+
+        for (auto &pointNormal : _pointToNormal) {
+            if (pointNormal.first == point) {
+                return pointNormal.second;
+            }
         }
     }
     return Math::Vector3D(0, 0, 0);
