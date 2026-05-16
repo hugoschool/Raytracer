@@ -24,22 +24,22 @@ Raytracer::Obj::Obj(Raytracer::PrimitiveOptions options)
     std::ifstream file(options.fileName);
     std::string line;
 
-    if (file.is_open()) {
-        while (getline(file, line)) {
-            if (line.starts_with("v ")) {
-                try {
-                    _vertices.push_back(lineToVertex(line, options));
-                } catch (const std::exception &e) {
-                }
-            } else if (line.starts_with("f ")) {
-                try {
-                    _triangles.push_back(lineToTriangle(line, options));
-                } catch (const std::exception &e) {
-                }
+    if (!file.is_open())
+        throw Exception("Couldn't open " + _options.fileName);
+    while (getline(file, line)) {
+        if (line.starts_with("v ")) {
+            try {
+                _vertices.push_back(lineToVertex(line, options));
+            } catch (const std::exception &e) {
+            }
+        } else if (line.starts_with("f ")) {
+            try {
+                _triangles.push_back(lineToTriangle(line, options));
+            } catch (const std::exception &e) {
             }
         }
-        file.close();
     }
+    file.close();
 }
 
 Raytracer::HitInfo Raytracer::Obj::hits(Raytracer::Ray &ray)
