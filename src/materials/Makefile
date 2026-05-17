@@ -23,7 +23,6 @@ CHESSBOARD_SRC	:=	$(COMMON_SRC) \
 CHESSBOARD_OBJ	:=	$(CHESSBOARD_SRC:.cpp=.o)
 CHESSBOARD_BIN	:=	$(PLUGINS_DIR)/raytracer_material_chessboard.so
 
-
 include $(BASE_DIR)/common.mk
 
 all:	$(FLAT_COLOR_BIN) $(METALLIC_BIN) $(TRANSPARENT_BIN) $(CHESSBOARD_BIN)
@@ -45,10 +44,8 @@ clean:
 fclean:	clean
 	$(RM) $(FLAT_COLOR_BIN)
 	$(RM) $(METALLIC_BIN)
-	$(RM) $(METALLIC_BIN)
+	$(RM) $(TRANSPARENT_BIN)
 	$(RM) $(CHESSBOARD_BIN)
-
-
 
 re:	fclean all
 
