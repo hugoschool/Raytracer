@@ -27,9 +27,14 @@ CUBE_SRC	:=	$(COMMON_SRC) \
 CUBE_OBJ	:=	$(CUBE_SRC:.cpp=.o)
 CUBE_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_cube.so
 
+CONE_SRC	:=	$(COMMON_SRC) \
+				Cone.cpp
+CONE_OBJ	:=	$(CONE_SRC:.cpp=.o)
+CONE_BIN	:=	$(PLUGINS_DIR)/raytracer_primitive_cone.so
+
 include $(BASE_DIR)/common.mk
 
-all:	$(SPHERE_BIN) $(PLANE_BIN) $(TRIANGLE_BIN) $(CUBE_BIN) $(CYLINDER_BIN)
+all:	$(SPHERE_BIN) $(PLANE_BIN) $(TRIANGLE_BIN) $(CUBE_BIN) $(CYLINDER_BIN) $(CONE_BIN)
 
 $(SPHERE_BIN):	$(SPHERE_OBJ)
 
@@ -41,6 +46,8 @@ $(TRIANGLE_BIN): $(TRIANGLE_OBJ)
 
 $(CUBE_BIN): $(CUBE_OBJ)
 
+$(CONE_BIN):	$(CONE_OBJ)
+
 clean:
 	$(RM) $(SPHERE_OBJ)
 	$(RM) $(PLANE_OBJ)
@@ -48,6 +55,7 @@ clean:
 	$(RM) $(CUBE_OBJ)
 	$(RM) $(CYLINDER_OBJ)
 	$(RM) $(CUBE_OBJ)
+	$(RM) $(CONE_BIN)
 
 fclean:	clean
 	$(RM) $(SPHERE_BIN)
@@ -56,6 +64,7 @@ fclean:	clean
 	$(RM) $(CUBE_BIN)
 	$(RM) $(CYLINDER_BIN)
 	$(RM) $(CUBE_BIN)
+	$(RM) $(CONE_BIN)
 
 re:	fclean all
 
