@@ -75,12 +75,14 @@ clean:
 	$(MAKE) -C src/primitives clean
 	$(MAKE) -C src/lights clean
 	$(MAKE) -C src/transforms clean
+	$(MAKE) -C src/materials clean
 	$(RM) $(OBJ)
 
 fclean:	clean
 	$(MAKE) -C src/primitives fclean
 	$(MAKE) -C src/lights fclean
 	$(MAKE) -C src/transforms fclean
+	$(MAKE) -C src/materials fclean
 	$(RM) $(BINARY)
 
 re:	fclean all
