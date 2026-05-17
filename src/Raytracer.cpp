@@ -169,6 +169,7 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
     }
     // multiplier /= _lights.size();
     multiplier = std::min(multiplier, 1.0);
+    color = s->getOptions().material->applyMaterial(color, hit.getHitPos());
     return Pixel(color, multiplier);
 }
 
