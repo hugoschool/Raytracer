@@ -11,6 +11,7 @@ namespace Raytracer {
             ~AMaterial() = default;
 
             MaterialOptions getOptions() const override;
+            Color applyMaterial(Color, Math::Point3D) const override;
 
         protected:
             MaterialOptions _options;
