@@ -201,7 +201,7 @@ void Raytracer::Raytracer::exportPPM()
     threads.reserve(nproc);
 
     unsigned int xStart = 0;
-    unsigned int interval = std::floorf(static_cast<float>(_camera.width) / nproc);
+    unsigned int interval = ::floorf(static_cast<float>(_camera.width) / nproc);
     unsigned int xEnd = interval;
     unsigned int compensation = _camera.width % nproc;
 
