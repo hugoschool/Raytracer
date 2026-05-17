@@ -71,8 +71,3 @@ Raytracer::Math::Vector3D Raytracer::Cylinder::getNormal(const Math::Point3D poi
     // side hit
     return (point - axis_point).normalize();
 }
-
-extern "C" Raytracer::IPrimitive *primitiveEntrypoint(Raytracer::PrimitiveOptions options)
-{
-    return new Raytracer::Cylinder(options);
-}

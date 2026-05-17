@@ -57,10 +57,5 @@ Raytracer::HitInfo Raytracer::Triangle::hits(Raytracer::Ray &ray)
 
 Raytracer::Math::Vector3D Raytracer::Triangle::getNormal(const Math::Point3D) const
 {
-    return _normal;
-}
-
-extern "C" Raytracer::IPrimitive *primitiveEntrypoint(Raytracer::PrimitiveOptions options)
-{
-    return new Raytracer::Triangle(options);
+    return _normal * -1;
 }
