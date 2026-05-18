@@ -139,7 +139,7 @@ Raytracer::Pixel Raytracer::Raytracer::hitIlluminance(std::shared_ptr<IPrimitive
             if (tmpPrimitive.get() == s.get())
                 continue;
             HitInfo tmpHitInfo = tmpPrimitive->hits(lightToHit);
-            if (!tmpHitInfo.hasHit())
+            if (!tmpHitInfo.hasHit() && light->skipHitDetection() == false)
                 continue;
             // on calcule la norme des deux vecteurs ainsi que le produit scalaire pour voir si le nouvel objet obstruct la lumière
             Math::Vector3D lightToNewObject = light->getDirection(tmpHitInfo.getHitPos());

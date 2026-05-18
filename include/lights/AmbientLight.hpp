@@ -11,6 +11,7 @@ namespace Raytracer {
             ~AmbientLight() = default;
 
             Math::Vector3D getDirection(Math::Point3D) const override;
+            bool skipHitDetection() const override;
             void modifyMultiplierForShadow(Math::Vector3D, Math::Vector3D, double &, double) const override;
     };
 }

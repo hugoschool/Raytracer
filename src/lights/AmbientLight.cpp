@@ -18,6 +18,11 @@ void Raytracer::AmbientLight::modifyMultiplierForShadow(Raytracer::Math::Vector3
     multiplier = _options.multiplier;
 }
 
+bool Raytracer::AmbientLight::skipHitDetection() const
+{
+    return true;
+}
+
 extern "C" Raytracer::AmbientLight *lightEntrypoint(Raytracer::LightOptions options)
 {
     return new Raytracer::AmbientLight(options);

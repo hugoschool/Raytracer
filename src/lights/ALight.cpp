@@ -19,6 +19,11 @@ void Raytracer::ALight::modifyMultiplierForShadow(Math::Vector3D, Math::Vector3D
 {
 }
 
+bool Raytracer::ALight::skipHitDetection() const
+{
+    return false;
+}
+
 Raytracer::Ray Raytracer::ALight::getRay(Raytracer::Math::Vector3D &vec, Raytracer::HitInfo &hit) const
 {
     return Ray(hit.getHitPos(), vec * -1);
